@@ -1,0 +1,28 @@
+namespace tm, x, y, z : Tm
+  - shift: "shift"
+  - subst: "subst"
+
+sort Ty, S, T, U :=
+  | tunit
+  | tarr T1 T2
+  | tprod T1 T2
+
+sort Tm, s, t, u :=
+  + var x
+  | tt
+  | abs x T [x]t
+  | app t1 t2
+  | prod t1 t2
+  | lett p t1 [bindPat p]t2
+
+sort Pat, p :=
+  | pvar x T
+  | pprod p1 p2
+
+fun bindPat : Pat -> [tm]
+  | pvar x T    -> x
+  | pprod p1 p2 -> bindPat p1 , bindPat p2
+
+env Env, G, D :=
+  + empty
+  | evar : x -> T

@@ -1,0 +1,24 @@
+namespace tm, x, y, z : Tm
+  - shift: "shift" - subst: "subst"
+namespace ty, X, Y, Z : Ty
+  - shift: "tshift" - subst: "tsubst"
+
+sort Kind, K :=
+  | star
+  | karr K1 K2
+
+sort Ty, S, T, U :=
+  + tvar X
+  | tabs X K [X]T
+  | tapp T1 T2
+  | tarr T1 T2
+
+sort Tm, s, t, u :=
+  + var x
+  | abs x T [x]t
+  | app t1 t2
+
+env Env, G, D :=
+  + empty
+  | evar : x -> T
+  | etvar : X -> K
