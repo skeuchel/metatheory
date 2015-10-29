@@ -1,7 +1,8 @@
 Require Import Coq.omega.Omega.
+Require Import Coq.Program.Equality.
+Require Import Coq.Program.Tactics.
 Require Export DeclarationEvaluation.
 Require Export DeclarationTyping.
-Set Implicit Arguments.
 
 (******************************************************************************)
 (* Weakening lemmas                                                           *)
@@ -404,7 +405,7 @@ Proof.
   intros ST; revert V; induction ST; intros V SV.
   - eauto using TRedStar.
   - destruct (IHST _ SV) as (W & TW & VW).
-    destruct (tred_strip TW H) as (Z & WZ & UZ).
+    destruct (tred_strip TW _ H) as (Z & WZ & UZ).
     eauto using QRS_Cons.
 Qed.
 

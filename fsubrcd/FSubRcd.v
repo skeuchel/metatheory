@@ -1,6 +1,5 @@
-Require Export Coq.Program.Equality.
-Require Export Coq.Program.Tactics.
-Require Export Coq.Unicode.Utf8.
+Require Import Coq.Program.Equality.
+Require Import Coq.Program.Tactics.
 Require Export Needle.
 Section Namespace.
   Inductive Namespace : Type :=
@@ -22,8 +21,8 @@ Section HVarlist.
   
   Fixpoint appendHvl (k : Hvl) (k0 : Hvl) {struct k0} : Hvl :=
     match k0 with
-      | H0 => k
-      | HS a k0 => (HS a (appendHvl k k0))
+      | (H0) => k
+      | (HS a k0) => (HS a (appendHvl k k0))
     end.
   
   Lemma appendHvl_assoc  :
@@ -53,17 +52,17 @@ Section Index.
   
   Fixpoint weakenIndextm (x : (Index tm)) (k : Hvl) {struct k} : (Index tm) :=
     match k with
-      | H0 => x
-      | HS a k => match a with
-        | tm => (IS (weakenIndextm x k))
+      | (H0) => x
+      | (HS a k) => match a with
+        | (tm) => (IS (weakenIndextm x k))
         | _ => (weakenIndextm x k)
       end
     end.
   Fixpoint weakenIndexty (X : (Index ty)) (k : Hvl) {struct k} : (Index ty) :=
     match k with
-      | H0 => X
-      | HS a k => match a with
-        | ty => (IS (weakenIndexty X k))
+      | (H0) => X
+      | (HS a k) => match a with
+        | (ty) => (IS (weakenIndexty X k))
         | _ => (weakenIndexty X k)
       end
     end.
@@ -136,13 +135,13 @@ End Terms.
 Section Functions.
   Fixpoint bindPRec (ps : PRec) {struct ps} : Hvl :=
     match ps with
-      | pnil => H0
-      | pcons l p ps => (appendHvl (bindPat p) (appendHvl (bindPRec ps) H0))
+      | (pnil) => H0
+      | (pcons l p ps) => (appendHvl (bindPat p) (appendHvl (bindPRec ps) H0))
     end
   with bindPat (p : Pat) {struct p} : Hvl :=
     match p with
-      | pvar T => (appendHvl (HS tm H0) H0)
-      | prec ps => (appendHvl (bindPRec ps) H0)
+      | (pvar T) => (appendHvl (HS tm H0) H0)
+      | (prec ps) => (appendHvl (bindPRec ps) H0)
     end.
   Scheme ind_bindPRec_bindPat_PRec := Induction for PRec Sort Prop
   with ind_bindPRec_bindPat_Pat := Induction for Pat Sort Prop.
@@ -158,17 +157,17 @@ Section Shift.
   Global Arguments CS {a} _ .
   Fixpoint weakenCutofftm (c : (Cutoff tm)) (k : Hvl) {struct k} : (Cutoff tm) :=
     match k with
-      | H0 => c
-      | HS a k => match a with
-        | tm => (CS (weakenCutofftm c k))
+      | (H0) => c
+      | (HS a k) => match a with
+        | (tm) => (CS (weakenCutofftm c k))
         | _ => (weakenCutofftm c k)
       end
     end.
   Fixpoint weakenCutoffty (c : (Cutoff ty)) (k : Hvl) {struct k} : (Cutoff ty) :=
     match k with
-      | H0 => c
-      | HS a k => match a with
-        | ty => (CS (weakenCutoffty c k))
+      | (H0) => c
+      | (HS a k) => match a with
+        | (ty) => (CS (weakenCutoffty c k))
         | _ => (weakenCutoffty c k)
       end
     end.
@@ -189,119 +188,119 @@ Section Shift.
   Qed.
   Fixpoint shiftIndex (c : (Cutoff tm)) (x : (Index tm)) {struct c} : (Index tm) :=
     match c with
-      | C0 => (IS x)
-      | CS c => match x with
-        | I0 => I0
-        | IS x => (IS (shiftIndex c x))
+      | (C0) => (IS x)
+      | (CS c) => match x with
+        | (I0) => I0
+        | (IS x) => (IS (shiftIndex c x))
       end
     end.
   Fixpoint tshiftIndex (c : (Cutoff ty)) (X : (Index ty)) {struct c} : (Index ty) :=
     match c with
-      | C0 => (IS X)
-      | CS c => match X with
-        | I0 => I0
-        | IS X => (IS (tshiftIndex c X))
+      | (C0) => (IS X)
+      | (CS c) => match X with
+        | (I0) => I0
+        | (IS X) => (IS (tshiftIndex c X))
       end
     end.
   Fixpoint tshiftTRec (c : (Cutoff ty)) (SS : TRec) {struct SS} : TRec :=
     match SS with
-      | tnil => (tnil)
-      | tcons l T TS => (tcons l (tshiftTy (weakenCutoffty c H0) T) (tshiftTRec (weakenCutoffty c H0) TS))
+      | (tnil) => (tnil)
+      | (tcons l T TS) => (tcons l (tshiftTy (weakenCutoffty c H0) T) (tshiftTRec (weakenCutoffty c H0) TS))
     end
   with tshiftTy (c : (Cutoff ty)) (S0 : Ty) {struct S0} : Ty :=
     match S0 with
-      | tvar X => (tvar (tshiftIndex c X))
-      | top => (top)
-      | tarr T1 T2 => (tarr (tshiftTy (weakenCutoffty c H0) T1) (tshiftTy (weakenCutoffty c H0) T2))
-      | tall T0 T3 => (tall (tshiftTy (weakenCutoffty c H0) T0) (tshiftTy (weakenCutoffty c (appendHvl (HS ty H0) H0)) T3))
-      | trec TS => (trec (tshiftTRec (weakenCutoffty c H0) TS))
+      | (tvar X) => (tvar (tshiftIndex c X))
+      | (top) => (top)
+      | (tarr T1 T2) => (tarr (tshiftTy (weakenCutoffty c H0) T1) (tshiftTy (weakenCutoffty c H0) T2))
+      | (tall T0 T3) => (tall (tshiftTy (weakenCutoffty c H0) T0) (tshiftTy (weakenCutoffty c (appendHvl (HS ty H0) H0)) T3))
+      | (trec TS) => (trec (tshiftTRec (weakenCutoffty c H0) TS))
     end.
   Fixpoint tshiftPat (c : (Cutoff ty)) (p : Pat) {struct p} : Pat :=
     match p with
-      | pvar T => (pvar (tshiftTy (weakenCutoffty c H0) T))
-      | prec ps => (prec (tshiftPRec (weakenCutoffty c H0) ps))
+      | (pvar T) => (pvar (tshiftTy (weakenCutoffty c H0) T))
+      | (prec ps) => (prec (tshiftPRec (weakenCutoffty c H0) ps))
     end
   with tshiftPRec (c : (Cutoff ty)) (ps : PRec) {struct ps} : PRec :=
     match ps with
-      | pnil => (pnil)
-      | pcons l p ps0 => (pcons l (tshiftPat (weakenCutoffty c H0) p) (tshiftPRec (weakenCutoffty c H0) ps0))
+      | (pnil) => (pnil)
+      | (pcons l p ps0) => (pcons l (tshiftPat (weakenCutoffty c H0) p) (tshiftPRec (weakenCutoffty c H0) ps0))
     end.
   Fixpoint shiftTm (c : (Cutoff tm)) (s : Tm) {struct s} : Tm :=
     match s with
-      | var x => (var (shiftIndex c x))
-      | abs T t => (abs T (shiftTm (weakenCutofftm c (appendHvl (HS tm H0) H0)) t))
-      | app t1 t2 => (app (shiftTm (weakenCutofftm c H0) t1) (shiftTm (weakenCutofftm c H0) t2))
-      | tabs T0 t0 => (tabs T0 (shiftTm (weakenCutofftm c (appendHvl (HS ty H0) H0)) t0))
-      | tapp t3 T1 => (tapp (shiftTm (weakenCutofftm c H0) t3) T1)
-      | rec ts => (rec (shiftRec (weakenCutofftm c H0) ts))
-      | prj t4 l => (prj (shiftTm (weakenCutofftm c H0) t4) l)
-      | lett p t5 t6 => (lett p (shiftTm (weakenCutofftm c H0) t5) (shiftTm (weakenCutofftm c (appendHvl (bindPat p) H0)) t6))
+      | (var x) => (var (shiftIndex c x))
+      | (abs T t) => (abs T (shiftTm (weakenCutofftm c (appendHvl (HS tm H0) H0)) t))
+      | (app t1 t2) => (app (shiftTm (weakenCutofftm c H0) t1) (shiftTm (weakenCutofftm c H0) t2))
+      | (tabs T0 t0) => (tabs T0 (shiftTm (weakenCutofftm c (appendHvl (HS ty H0) H0)) t0))
+      | (tapp t3 T1) => (tapp (shiftTm (weakenCutofftm c H0) t3) T1)
+      | (rec ts) => (rec (shiftRec (weakenCutofftm c H0) ts))
+      | (prj t4 l) => (prj (shiftTm (weakenCutofftm c H0) t4) l)
+      | (lett p t5 t6) => (lett p (shiftTm (weakenCutofftm c H0) t5) (shiftTm (weakenCutofftm c (appendHvl (bindPat p) H0)) t6))
     end
   with shiftRec (c : (Cutoff tm)) (ss : Rec) {struct ss} : Rec :=
     match ss with
-      | rnil => (rnil)
-      | rcons l t ts => (rcons l (shiftTm (weakenCutofftm c H0) t) (shiftRec (weakenCutofftm c H0) ts))
+      | (rnil) => (rnil)
+      | (rcons l t ts) => (rcons l (shiftTm (weakenCutofftm c H0) t) (shiftRec (weakenCutofftm c H0) ts))
     end.
   Fixpoint tshiftTm (c : (Cutoff ty)) (s : Tm) {struct s} : Tm :=
     match s with
-      | var x => (var x)
-      | abs T t => (abs (tshiftTy (weakenCutoffty c H0) T) (tshiftTm (weakenCutoffty c (appendHvl (HS tm H0) H0)) t))
-      | app t1 t2 => (app (tshiftTm (weakenCutoffty c H0) t1) (tshiftTm (weakenCutoffty c H0) t2))
-      | tabs T0 t0 => (tabs (tshiftTy (weakenCutoffty c H0) T0) (tshiftTm (weakenCutoffty c (appendHvl (HS ty H0) H0)) t0))
-      | tapp t3 T1 => (tapp (tshiftTm (weakenCutoffty c H0) t3) (tshiftTy (weakenCutoffty c H0) T1))
-      | rec ts => (rec (tshiftRec (weakenCutoffty c H0) ts))
-      | prj t4 l => (prj (tshiftTm (weakenCutoffty c H0) t4) l)
-      | lett p t5 t6 => (lett (tshiftPat (weakenCutoffty c H0) p) (tshiftTm (weakenCutoffty c H0) t5) (tshiftTm (weakenCutoffty c (appendHvl (bindPat p) H0)) t6))
+      | (var x) => (var x)
+      | (abs T t) => (abs (tshiftTy (weakenCutoffty c H0) T) (tshiftTm (weakenCutoffty c (appendHvl (HS tm H0) H0)) t))
+      | (app t1 t2) => (app (tshiftTm (weakenCutoffty c H0) t1) (tshiftTm (weakenCutoffty c H0) t2))
+      | (tabs T0 t0) => (tabs (tshiftTy (weakenCutoffty c H0) T0) (tshiftTm (weakenCutoffty c (appendHvl (HS ty H0) H0)) t0))
+      | (tapp t3 T1) => (tapp (tshiftTm (weakenCutoffty c H0) t3) (tshiftTy (weakenCutoffty c H0) T1))
+      | (rec ts) => (rec (tshiftRec (weakenCutoffty c H0) ts))
+      | (prj t4 l) => (prj (tshiftTm (weakenCutoffty c H0) t4) l)
+      | (lett p t5 t6) => (lett (tshiftPat (weakenCutoffty c H0) p) (tshiftTm (weakenCutoffty c H0) t5) (tshiftTm (weakenCutoffty c (appendHvl (bindPat p) H0)) t6))
     end
   with tshiftRec (c : (Cutoff ty)) (ss : Rec) {struct ss} : Rec :=
     match ss with
-      | rnil => (rnil)
-      | rcons l t ts => (rcons l (tshiftTm (weakenCutoffty c H0) t) (tshiftRec (weakenCutoffty c H0) ts))
+      | (rnil) => (rnil)
+      | (rcons l t ts) => (rcons l (tshiftTm (weakenCutoffty c H0) t) (tshiftRec (weakenCutoffty c H0) ts))
     end.
 End Shift.
 
 Section Weaken.
   Fixpoint weakenLab (l : Lab) (k : Hvl) {struct k} : Lab :=
     match k with
-      | H0 => l
-      | HS tm k => (weakenLab l k)
-      | HS ty k => (weakenLab l k)
+      | (H0) => l
+      | (HS tm k) => (weakenLab l k)
+      | (HS ty k) => (weakenLab l k)
     end.
   Fixpoint weakenTRec (SS : TRec) (k : Hvl) {struct k} : TRec :=
     match k with
-      | H0 => SS
-      | HS tm k => (weakenTRec SS k)
-      | HS ty k => (tshiftTRec C0 (weakenTRec SS k))
+      | (H0) => SS
+      | (HS tm k) => (weakenTRec SS k)
+      | (HS ty k) => (tshiftTRec C0 (weakenTRec SS k))
     end.
   Fixpoint weakenTy (S0 : Ty) (k : Hvl) {struct k} : Ty :=
     match k with
-      | H0 => S0
-      | HS tm k => (weakenTy S0 k)
-      | HS ty k => (tshiftTy C0 (weakenTy S0 k))
+      | (H0) => S0
+      | (HS tm k) => (weakenTy S0 k)
+      | (HS ty k) => (tshiftTy C0 (weakenTy S0 k))
     end.
   Fixpoint weakenPat (p : Pat) (k : Hvl) {struct k} : Pat :=
     match k with
-      | H0 => p
-      | HS tm k => (weakenPat p k)
-      | HS ty k => (tshiftPat C0 (weakenPat p k))
+      | (H0) => p
+      | (HS tm k) => (weakenPat p k)
+      | (HS ty k) => (tshiftPat C0 (weakenPat p k))
     end.
   Fixpoint weakenPRec (ps : PRec) (k : Hvl) {struct k} : PRec :=
     match k with
-      | H0 => ps
-      | HS tm k => (weakenPRec ps k)
-      | HS ty k => (tshiftPRec C0 (weakenPRec ps k))
+      | (H0) => ps
+      | (HS tm k) => (weakenPRec ps k)
+      | (HS ty k) => (tshiftPRec C0 (weakenPRec ps k))
     end.
   Fixpoint weakenTm (s : Tm) (k : Hvl) {struct k} : Tm :=
     match k with
-      | H0 => s
-      | HS tm k => (shiftTm C0 (weakenTm s k))
-      | HS ty k => (tshiftTm C0 (weakenTm s k))
+      | (H0) => s
+      | (HS tm k) => (shiftTm C0 (weakenTm s k))
+      | (HS ty k) => (tshiftTm C0 (weakenTm s k))
     end.
   Fixpoint weakenRec (ss : Rec) (k : Hvl) {struct k} : Rec :=
     match k with
-      | H0 => ss
-      | HS tm k => (shiftRec C0 (weakenRec ss k))
-      | HS ty k => (tshiftRec C0 (weakenRec ss k))
+      | (H0) => ss
+      | (HS tm k) => (shiftRec C0 (weakenRec ss k))
+      | (HS ty k) => (tshiftRec C0 (weakenRec ss k))
     end.
 End Weaken.
 
@@ -315,8 +314,8 @@ Section Subst.
   Global Arguments XS [a] b _ .
   Fixpoint weakenTrace {a : Namespace} (x : (Trace a)) (k : Hvl) {struct k} : (Trace a) :=
     match k with
-      | H0 => x
-      | HS b k => (XS b (weakenTrace x k))
+      | (H0) => x
+      | (HS b k) => (XS b (weakenTrace x k))
     end.
   Lemma weakenTrace_append (a : Namespace) :
     (forall (x : (Trace a)) (k : Hvl) (k0 : Hvl) ,
@@ -327,82 +326,82 @@ Section Subst.
   Qed.
   Fixpoint substIndex (d : (Trace tm)) (s : Tm) (x : (Index tm)) {struct d} : Tm :=
     match d with
-      | X0 => match x with
-        | I0 => s
-        | IS x => (var x)
+      | (X0) => match x with
+        | (I0) => s
+        | (IS x) => (var x)
       end
-      | XS tm d => match x with
-        | I0 => (var I0)
-        | IS x => (shiftTm C0 (substIndex d s x))
+      | (XS tm d) => match x with
+        | (I0) => (var I0)
+        | (IS x) => (shiftTm C0 (substIndex d s x))
       end
-      | XS ty d => (tshiftTm C0 (substIndex d s x))
+      | (XS ty d) => (tshiftTm C0 (substIndex d s x))
     end.
   Fixpoint tsubstIndex (d : (Trace ty)) (S0 : Ty) (X : (Index ty)) {struct d} : Ty :=
     match d with
-      | X0 => match X with
-        | I0 => S0
-        | IS X => (tvar X)
+      | (X0) => match X with
+        | (I0) => S0
+        | (IS X) => (tvar X)
       end
-      | XS tm d => (tsubstIndex d S0 X)
-      | XS ty d => match X with
-        | I0 => (tvar I0)
-        | IS X => (tshiftTy C0 (tsubstIndex d S0 X))
+      | (XS tm d) => (tsubstIndex d S0 X)
+      | (XS ty d) => match X with
+        | (I0) => (tvar I0)
+        | (IS X) => (tshiftTy C0 (tsubstIndex d S0 X))
       end
     end.
   Fixpoint tsubstTRec (d : (Trace ty)) (S0 : Ty) (SS : TRec) {struct SS} : TRec :=
     match SS with
-      | tnil => (tnil)
-      | tcons l T TS => (tcons l (tsubstTy d S0 T) (tsubstTRec d S0 TS))
+      | (tnil) => (tnil)
+      | (tcons l T TS) => (tcons l (tsubstTy d S0 T) (tsubstTRec d S0 TS))
     end
   with tsubstTy (d : (Trace ty)) (S0 : Ty) (S1 : Ty) {struct S1} : Ty :=
     match S1 with
-      | tvar X => (tsubstIndex d S0 X)
-      | top => (top)
-      | tarr T1 T2 => (tarr (tsubstTy d S0 T1) (tsubstTy d S0 T2))
-      | tall T0 T3 => (tall (tsubstTy d S0 T0) (tsubstTy (XS ty d) S0 T3))
-      | trec TS => (trec (tsubstTRec d S0 TS))
+      | (tvar X) => (tsubstIndex d S0 X)
+      | (top) => (top)
+      | (tarr T1 T2) => (tarr (tsubstTy d S0 T1) (tsubstTy d S0 T2))
+      | (tall T0 T3) => (tall (tsubstTy d S0 T0) (tsubstTy (XS ty d) S0 T3))
+      | (trec TS) => (trec (tsubstTRec d S0 TS))
     end.
   Fixpoint tsubstPat (d : (Trace ty)) (S0 : Ty) (p : Pat) {struct p} : Pat :=
     match p with
-      | pvar T => (pvar (tsubstTy d S0 T))
-      | prec ps => (prec (tsubstPRec d S0 ps))
+      | (pvar T) => (pvar (tsubstTy d S0 T))
+      | (prec ps) => (prec (tsubstPRec d S0 ps))
     end
   with tsubstPRec (d : (Trace ty)) (S0 : Ty) (ps : PRec) {struct ps} : PRec :=
     match ps with
-      | pnil => (pnil)
-      | pcons l p ps0 => (pcons l (tsubstPat d S0 p) (tsubstPRec d S0 ps0))
+      | (pnil) => (pnil)
+      | (pcons l p ps0) => (pcons l (tsubstPat d S0 p) (tsubstPRec d S0 ps0))
     end.
   Fixpoint substTm (d : (Trace tm)) (s : Tm) (s0 : Tm) {struct s0} : Tm :=
     match s0 with
-      | var x => (substIndex d s x)
-      | abs T t => (abs T (substTm (XS tm d) s t))
-      | app t1 t2 => (app (substTm d s t1) (substTm d s t2))
-      | tabs T0 t0 => (tabs T0 (substTm (XS ty d) s t0))
-      | tapp t3 T1 => (tapp (substTm d s t3) T1)
-      | rec ts => (rec (substRec d s ts))
-      | prj t4 l => (prj (substTm d s t4) l)
-      | lett p t5 t6 => (lett p (substTm d s t5) (substTm (weakenTrace d (bindPat p)) s t6))
+      | (var x) => (substIndex d s x)
+      | (abs T t) => (abs T (substTm (XS tm d) s t))
+      | (app t1 t2) => (app (substTm d s t1) (substTm d s t2))
+      | (tabs T0 t0) => (tabs T0 (substTm (XS ty d) s t0))
+      | (tapp t3 T1) => (tapp (substTm d s t3) T1)
+      | (rec ts) => (rec (substRec d s ts))
+      | (prj t4 l) => (prj (substTm d s t4) l)
+      | (lett p t5 t6) => (lett p (substTm d s t5) (substTm (weakenTrace d (bindPat p)) s t6))
     end
   with substRec (d : (Trace tm)) (s : Tm) (ss : Rec) {struct ss} : Rec :=
     match ss with
-      | rnil => (rnil)
-      | rcons l t ts => (rcons l (substTm d s t) (substRec d s ts))
+      | (rnil) => (rnil)
+      | (rcons l t ts) => (rcons l (substTm d s t) (substRec d s ts))
     end.
   Fixpoint tsubstTm (d : (Trace ty)) (S0 : Ty) (s : Tm) {struct s} : Tm :=
     match s with
-      | var x => (var x)
-      | abs T t => (abs (tsubstTy d S0 T) (tsubstTm (XS tm d) S0 t))
-      | app t1 t2 => (app (tsubstTm d S0 t1) (tsubstTm d S0 t2))
-      | tabs T0 t0 => (tabs (tsubstTy d S0 T0) (tsubstTm (XS ty d) S0 t0))
-      | tapp t3 T1 => (tapp (tsubstTm d S0 t3) (tsubstTy d S0 T1))
-      | rec ts => (rec (tsubstRec d S0 ts))
-      | prj t4 l => (prj (tsubstTm d S0 t4) l)
-      | lett p t5 t6 => (lett (tsubstPat d S0 p) (tsubstTm d S0 t5) (tsubstTm (weakenTrace d (bindPat p)) S0 t6))
+      | (var x) => (var x)
+      | (abs T t) => (abs (tsubstTy d S0 T) (tsubstTm (XS tm d) S0 t))
+      | (app t1 t2) => (app (tsubstTm d S0 t1) (tsubstTm d S0 t2))
+      | (tabs T0 t0) => (tabs (tsubstTy d S0 T0) (tsubstTm (XS ty d) S0 t0))
+      | (tapp t3 T1) => (tapp (tsubstTm d S0 t3) (tsubstTy d S0 T1))
+      | (rec ts) => (rec (tsubstRec d S0 ts))
+      | (prj t4 l) => (prj (tsubstTm d S0 t4) l)
+      | (lett p t5 t6) => (lett (tsubstPat d S0 p) (tsubstTm d S0 t5) (tsubstTm (weakenTrace d (bindPat p)) S0 t6))
     end
   with tsubstRec (d : (Trace ty)) (S0 : Ty) (ss : Rec) {struct ss} : Rec :=
     match ss with
-      | rnil => (rnil)
-      | rcons l t ts => (rcons l (tsubstTm d S0 t) (tsubstRec d S0 ts))
+      | (rnil) => (rnil)
+      | (rcons l t ts) => (rcons l (tsubstTm d S0 t) (tsubstRec d S0 ts))
     end.
 End Subst.
 
@@ -2149,13 +2148,13 @@ End SubstSubstInteraction.
 Section WellFormed.
   Fixpoint wfindex {a : Namespace} (k87 : Hvl) (i : (Index a)) {struct k87} : Prop :=
     match k87 with
-      | H0 => False
-      | HS b k87 => match (eq_namespace_dec a b) with
-        | left e => match i with
-          | I0 => True
-          | IS i => (wfindex k87 i)
+      | (H0) => False
+      | (HS b k87) => match (eq_namespace_dec a b) with
+        | (left e) => match i with
+          | (I0) => True
+          | (IS i) => (wfindex k87 i)
         end
-        | right n => (wfindex k87 i)
+        | (right n) => (wfindex k87 i)
       end
     end.
   Inductive wfLab (k87 : Hvl) : Lab -> Prop :=
@@ -2622,244 +2621,244 @@ Section SubstWellFormed.
   Proof.
     needleGenericWeakenSubstHvl .
   Qed.
-  Lemma substhvl_tm_wfindex_tm {k87 : Hvl} {s24 : Tm} (wft : (wfTm k87 s24)) :
-    (forall {d78 : (Trace tm)} {k88 : Hvl} {k89 : Hvl} ,
-      (substhvl_tm k87 d78 k88 k89) -> (forall {x59 : (Index tm)} ,
-        (wfindex k88 x59) -> (wfTm k89 (substIndex d78 s24 x59)))).
+  Lemma substhvl_tm_wfindex_tm {k97 : Hvl} {s24 : Tm} (wft : (wfTm k97 s24)) :
+    (forall {d78 : (Trace tm)} {k98 : Hvl} {k99 : Hvl} ,
+      (substhvl_tm k97 d78 k98 k99) -> (forall {x59 : (Index tm)} ,
+        (wfindex k98 x59) -> (wfTm k99 (substIndex d78 s24 x59)))).
   Proof.
     needleGenericSubstHvlWfIndexHom .
   Qed.
-  Lemma substhvl_ty_wfindex_ty {k87 : Hvl} {S65 : Ty} (wft : (wfTy k87 S65)) :
-    (forall {d78 : (Trace ty)} {k88 : Hvl} {k89 : Hvl} ,
-      (substhvl_ty k87 d78 k88 k89) -> (forall {X43 : (Index ty)} ,
-        (wfindex k88 X43) -> (wfTy k89 (tsubstIndex d78 S65 X43)))).
+  Lemma substhvl_ty_wfindex_ty {k97 : Hvl} {S66 : Ty} (wft : (wfTy k97 S66)) :
+    (forall {d78 : (Trace ty)} {k98 : Hvl} {k99 : Hvl} ,
+      (substhvl_ty k97 d78 k98 k99) -> (forall {X43 : (Index ty)} ,
+        (wfindex k98 X43) -> (wfTy k99 (tsubstIndex d78 S66 X43)))).
   Proof.
     needleGenericSubstHvlWfIndexHom .
   Qed.
-  Lemma substhvl_tm_wfindex_ty {k87 : Hvl} :
-    (forall {d78 : (Trace tm)} {k88 : Hvl} {k89 : Hvl} ,
-      (substhvl_tm k87 d78 k88 k89) -> (forall {X43 : (Index ty)} ,
-        (wfindex k88 X43) -> (wfindex k89 X43))).
+  Lemma substhvl_tm_wfindex_ty {k97 : Hvl} :
+    (forall {d78 : (Trace tm)} {k98 : Hvl} {k99 : Hvl} ,
+      (substhvl_tm k97 d78 k98 k99) -> (forall {X43 : (Index ty)} ,
+        (wfindex k98 X43) -> (wfindex k99 X43))).
   Proof.
     needleGenericSubstHvlWfIndexHet .
   Qed.
-  Lemma substhvl_ty_wfindex_tm {k87 : Hvl} :
-    (forall {d78 : (Trace ty)} {k88 : Hvl} {k89 : Hvl} ,
-      (substhvl_ty k87 d78 k88 k89) -> (forall {x59 : (Index tm)} ,
-        (wfindex k88 x59) -> (wfindex k89 x59))).
+  Lemma substhvl_ty_wfindex_tm {k97 : Hvl} :
+    (forall {d78 : (Trace ty)} {k98 : Hvl} {k99 : Hvl} ,
+      (substhvl_ty k97 d78 k98 k99) -> (forall {x59 : (Index tm)} ,
+        (wfindex k98 x59) -> (wfindex k99 x59))).
   Proof.
     needleGenericSubstHvlWfIndexHet .
   Qed.
-  Definition substhvl_tm_wfLab {k87 : Hvl} : (forall (k88 : Hvl) ,
-    (forall (l51 : Lab) (wf0 : (wfLab k88 l51)) ,
-      (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-        (substhvl_tm k87 d78 k88 k89) -> (wfLab k89 l51)))) := (fun (k88 : Hvl) =>
-    (ind_wfLab k88 (fun (l51 : Lab) (wf0 : (wfLab k88 l51)) =>
-      (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-        (substhvl_tm k87 d78 k88 k89) -> (wfLab k89 l51))) (fun {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-      (wfLab_L0 k89)) (fun (l : Lab) (wf0 : (wfLab k88 l)) IHl {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-      (wfLab_LS k89 (IHl (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)))))).
-  Definition substhvl_ty_wfLab {k87 : Hvl} : (forall (k88 : Hvl) ,
-    (forall (l51 : Lab) (wf0 : (wfLab k88 l51)) ,
-      (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-        (substhvl_ty k87 d78 k88 k89) -> (wfLab k89 l51)))) := (fun (k88 : Hvl) =>
-    (ind_wfLab k88 (fun (l51 : Lab) (wf0 : (wfLab k88 l51)) =>
-      (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-        (substhvl_ty k87 d78 k88 k89) -> (wfLab k89 l51))) (fun {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-      (wfLab_L0 k89)) (fun (l : Lab) (wf0 : (wfLab k88 l)) IHl {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-      (wfLab_LS k89 (IHl (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)))))).
-  Definition substhvl_tm_wfTRec_Ty {k87 : Hvl} : (forall (k88 : Hvl) ,
-    (forall (SS : TRec) (wf0 : (wfTRec k88 SS)) ,
-      (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-        (substhvl_tm k87 d78 k88 k89) -> (wfTRec k89 SS))) /\
-    (forall (S65 : Ty) (wf0 : (wfTy k88 S65)) ,
-      (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-        (substhvl_tm k87 d78 k88 k89) -> (wfTy k89 S65)))) := (ind_wfTRec_Ty (fun (k88 : Hvl) (SS : TRec) (wf0 : (wfTRec k88 SS)) =>
-    (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-      (substhvl_tm k87 d78 k88 k89) -> (wfTRec k89 SS))) (fun (k88 : Hvl) (S65 : Ty) (wf0 : (wfTy k88 S65)) =>
-    (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-      (substhvl_tm k87 d78 k88 k89) -> (wfTy k89 S65))) (fun (k88 : Hvl) {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTRec_tnil k89)) (fun (k88 : Hvl) (l : Lab) (wf0 : (wfLab k88 l)) (T : Ty) (wf1 : (wfTy k88 T)) IHT5 (TS : TRec) (wf2 : (wfTRec k88 TS)) IHTS13 {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTRec_tcons k89 (substhvl_tm_wfLab k88 l wf0 (weaken_substhvl_tm H0 del)) (IHT5 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)) (IHTS13 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)))) (fun (k88 : Hvl) {X43 : (Index ty)} (wfi : (wfindex k88 X43)) {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTy_tvar k89 (substhvl_tm_wfindex_ty del wfi))) (fun (k88 : Hvl) {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTy_top k89)) (fun (k88 : Hvl) (T1 : Ty) (wf0 : (wfTy k88 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy k88 T2)) IHT6 {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTy_tarr k89 (IHT5 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)) (IHT6 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)))) (fun (k88 : Hvl) (T1 : Ty) (wf0 : (wfTy k88 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy (HS ty k88) T2)) IHT6 {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTy_tall k89 (IHT5 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)) (IHT6 (weakenTrace d78 (HS ty H0)) (HS ty k89) (weaken_substhvl_tm (HS ty H0) del)))) (fun (k88 : Hvl) (TS : TRec) (wf0 : (wfTRec k88 TS)) IHTS13 {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTy_trec k89 (IHTS13 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del))))).
-  Lemma substhvl_tm_wfTRec {k87 : Hvl} (k88 : Hvl) (SS : TRec) (wf0 : (wfTRec k88 SS)) :
-    (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-      (substhvl_tm k87 d78 k88 k89) -> (wfTRec k89 SS)).
+  Definition substhvl_tm_wfLab {k97 : Hvl} : (forall (k98 : Hvl) ,
+    (forall (l52 : Lab) (wf0 : (wfLab k98 l52)) ,
+      (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+        (substhvl_tm k97 d78 k98 k99) -> (wfLab k99 l52)))) := (fun (k98 : Hvl) =>
+    (ind_wfLab k98 (fun (l52 : Lab) (wf0 : (wfLab k98 l52)) =>
+      (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+        (substhvl_tm k97 d78 k98 k99) -> (wfLab k99 l52))) (fun {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+      (wfLab_L0 k99)) (fun (l : Lab) (wf0 : (wfLab k98 l)) IHl {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+      (wfLab_LS k99 (IHl (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)))))).
+  Definition substhvl_ty_wfLab {k97 : Hvl} : (forall (k98 : Hvl) ,
+    (forall (l52 : Lab) (wf0 : (wfLab k98 l52)) ,
+      (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+        (substhvl_ty k97 d78 k98 k99) -> (wfLab k99 l52)))) := (fun (k98 : Hvl) =>
+    (ind_wfLab k98 (fun (l52 : Lab) (wf0 : (wfLab k98 l52)) =>
+      (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+        (substhvl_ty k97 d78 k98 k99) -> (wfLab k99 l52))) (fun {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+      (wfLab_L0 k99)) (fun (l : Lab) (wf0 : (wfLab k98 l)) IHl {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+      (wfLab_LS k99 (IHl (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)))))).
+  Definition substhvl_tm_wfTRec_Ty {k97 : Hvl} : (forall (k98 : Hvl) ,
+    (forall (SS0 : TRec) (wf0 : (wfTRec k98 SS0)) ,
+      (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+        (substhvl_tm k97 d78 k98 k99) -> (wfTRec k99 SS0))) /\
+    (forall (S66 : Ty) (wf0 : (wfTy k98 S66)) ,
+      (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+        (substhvl_tm k97 d78 k98 k99) -> (wfTy k99 S66)))) := (ind_wfTRec_Ty (fun (k98 : Hvl) (SS0 : TRec) (wf0 : (wfTRec k98 SS0)) =>
+    (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+      (substhvl_tm k97 d78 k98 k99) -> (wfTRec k99 SS0))) (fun (k98 : Hvl) (S66 : Ty) (wf0 : (wfTy k98 S66)) =>
+    (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+      (substhvl_tm k97 d78 k98 k99) -> (wfTy k99 S66))) (fun (k98 : Hvl) {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTRec_tnil k99)) (fun (k98 : Hvl) (l : Lab) (wf0 : (wfLab k98 l)) (T : Ty) (wf1 : (wfTy k98 T)) IHT5 (TS : TRec) (wf2 : (wfTRec k98 TS)) IHTS13 {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTRec_tcons k99 (substhvl_tm_wfLab k98 l wf0 (weaken_substhvl_tm H0 del)) (IHT5 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)) (IHTS13 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)))) (fun (k98 : Hvl) {X43 : (Index ty)} (wfi : (wfindex k98 X43)) {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTy_tvar k99 (substhvl_tm_wfindex_ty del wfi))) (fun (k98 : Hvl) {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTy_top k99)) (fun (k98 : Hvl) (T1 : Ty) (wf0 : (wfTy k98 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy k98 T2)) IHT6 {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTy_tarr k99 (IHT5 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)) (IHT6 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)))) (fun (k98 : Hvl) (T1 : Ty) (wf0 : (wfTy k98 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy (HS ty k98) T2)) IHT6 {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTy_tall k99 (IHT5 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)) (IHT6 (weakenTrace d78 (HS ty H0)) (HS ty k99) (weaken_substhvl_tm (HS ty H0) del)))) (fun (k98 : Hvl) (TS : TRec) (wf0 : (wfTRec k98 TS)) IHTS13 {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTy_trec k99 (IHTS13 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del))))).
+  Lemma substhvl_tm_wfTRec {k97 : Hvl} (k98 : Hvl) (SS0 : TRec) (wf0 : (wfTRec k98 SS0)) :
+    (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+      (substhvl_tm k97 d78 k98 k99) -> (wfTRec k99 SS0)).
   Proof.
-    apply ((substhvl_tm_wfTRec_Ty k88)).
+    apply ((substhvl_tm_wfTRec_Ty k98)).
     auto .
   Qed.
-  Lemma substhvl_tm_wfTy {k87 : Hvl} (k88 : Hvl) (S65 : Ty) (wf1 : (wfTy k88 S65)) :
-    (forall {d79 : (Trace tm)} {k90 : Hvl} ,
-      (substhvl_tm k87 d79 k88 k90) -> (wfTy k90 S65)).
+  Lemma substhvl_tm_wfTy {k97 : Hvl} (k98 : Hvl) (S66 : Ty) (wf1 : (wfTy k98 S66)) :
+    (forall {d79 : (Trace tm)} {k100 : Hvl} ,
+      (substhvl_tm k97 d79 k98 k100) -> (wfTy k100 S66)).
   Proof.
-    apply ((substhvl_tm_wfTRec_Ty k88)).
+    apply ((substhvl_tm_wfTRec_Ty k98)).
     auto .
   Qed.
-  Definition substhvl_ty_wfTRec_Ty {k87 : Hvl} {S65 : Ty} (wf : (wfTy k87 S65)) : (forall (k88 : Hvl) ,
-    (forall (SS : TRec) (wf0 : (wfTRec k88 SS)) ,
-      (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-        (substhvl_ty k87 d78 k88 k89) -> (wfTRec k89 (tsubstTRec d78 S65 SS)))) /\
-    (forall (S66 : Ty) (wf0 : (wfTy k88 S66)) ,
-      (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-        (substhvl_ty k87 d78 k88 k89) -> (wfTy k89 (tsubstTy d78 S65 S66))))) := (ind_wfTRec_Ty (fun (k88 : Hvl) (SS : TRec) (wf0 : (wfTRec k88 SS)) =>
-    (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-      (substhvl_ty k87 d78 k88 k89) -> (wfTRec k89 (tsubstTRec d78 S65 SS)))) (fun (k88 : Hvl) (S66 : Ty) (wf0 : (wfTy k88 S66)) =>
-    (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-      (substhvl_ty k87 d78 k88 k89) -> (wfTy k89 (tsubstTy d78 S65 S66)))) (fun (k88 : Hvl) {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTRec_tnil k89)) (fun (k88 : Hvl) (l : Lab) (wf0 : (wfLab k88 l)) (T : Ty) (wf1 : (wfTy k88 T)) IHT5 (TS : TRec) (wf2 : (wfTRec k88 TS)) IHTS13 {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTRec_tcons k89 (substhvl_ty_wfLab k88 l wf0 (weaken_substhvl_ty H0 del)) (IHT5 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)) (IHTS13 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)))) (fun (k88 : Hvl) {X43 : (Index ty)} (wfi : (wfindex k88 X43)) {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (substhvl_ty_wfindex_ty wf del wfi)) (fun (k88 : Hvl) {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTy_top k89)) (fun (k88 : Hvl) (T1 : Ty) (wf0 : (wfTy k88 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy k88 T2)) IHT6 {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTy_tarr k89 (IHT5 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)) (IHT6 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)))) (fun (k88 : Hvl) (T1 : Ty) (wf0 : (wfTy k88 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy (HS ty k88) T2)) IHT6 {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTy_tall k89 (IHT5 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)) (IHT6 (weakenTrace d78 (HS ty H0)) (HS ty k89) (weaken_substhvl_ty (HS ty H0) del)))) (fun (k88 : Hvl) (TS : TRec) (wf0 : (wfTRec k88 TS)) IHTS13 {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTy_trec k89 (IHTS13 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del))))).
-  Lemma substhvl_ty_wfTRec {k87 : Hvl} {S65 : Ty} (wf : (wfTy k87 S65)) (k88 : Hvl) (SS : TRec) (wf0 : (wfTRec k88 SS)) :
-    (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-      (substhvl_ty k87 d78 k88 k89) -> (wfTRec k89 (tsubstTRec d78 S65 SS))).
+  Definition substhvl_ty_wfTRec_Ty {k97 : Hvl} {S66 : Ty} (wf : (wfTy k97 S66)) : (forall (k98 : Hvl) ,
+    (forall (SS0 : TRec) (wf0 : (wfTRec k98 SS0)) ,
+      (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+        (substhvl_ty k97 d78 k98 k99) -> (wfTRec k99 (tsubstTRec d78 S66 SS0)))) /\
+    (forall (S67 : Ty) (wf0 : (wfTy k98 S67)) ,
+      (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+        (substhvl_ty k97 d78 k98 k99) -> (wfTy k99 (tsubstTy d78 S66 S67))))) := (ind_wfTRec_Ty (fun (k98 : Hvl) (SS0 : TRec) (wf0 : (wfTRec k98 SS0)) =>
+    (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+      (substhvl_ty k97 d78 k98 k99) -> (wfTRec k99 (tsubstTRec d78 S66 SS0)))) (fun (k98 : Hvl) (S67 : Ty) (wf0 : (wfTy k98 S67)) =>
+    (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+      (substhvl_ty k97 d78 k98 k99) -> (wfTy k99 (tsubstTy d78 S66 S67)))) (fun (k98 : Hvl) {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTRec_tnil k99)) (fun (k98 : Hvl) (l : Lab) (wf0 : (wfLab k98 l)) (T : Ty) (wf1 : (wfTy k98 T)) IHT5 (TS : TRec) (wf2 : (wfTRec k98 TS)) IHTS13 {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTRec_tcons k99 (substhvl_ty_wfLab k98 l wf0 (weaken_substhvl_ty H0 del)) (IHT5 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)) (IHTS13 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)))) (fun (k98 : Hvl) {X43 : (Index ty)} (wfi : (wfindex k98 X43)) {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (substhvl_ty_wfindex_ty wf del wfi)) (fun (k98 : Hvl) {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTy_top k99)) (fun (k98 : Hvl) (T1 : Ty) (wf0 : (wfTy k98 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy k98 T2)) IHT6 {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTy_tarr k99 (IHT5 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)) (IHT6 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)))) (fun (k98 : Hvl) (T1 : Ty) (wf0 : (wfTy k98 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy (HS ty k98) T2)) IHT6 {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTy_tall k99 (IHT5 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)) (IHT6 (weakenTrace d78 (HS ty H0)) (HS ty k99) (weaken_substhvl_ty (HS ty H0) del)))) (fun (k98 : Hvl) (TS : TRec) (wf0 : (wfTRec k98 TS)) IHTS13 {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTy_trec k99 (IHTS13 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del))))).
+  Lemma substhvl_ty_wfTRec {k97 : Hvl} {S66 : Ty} (wf : (wfTy k97 S66)) (k98 : Hvl) (SS0 : TRec) (wf0 : (wfTRec k98 SS0)) :
+    (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+      (substhvl_ty k97 d78 k98 k99) -> (wfTRec k99 (tsubstTRec d78 S66 SS0))).
   Proof.
-    apply ((substhvl_ty_wfTRec_Ty wf k88)).
+    apply ((substhvl_ty_wfTRec_Ty wf k98)).
     auto .
   Qed.
-  Lemma substhvl_ty_wfTy {k87 : Hvl} {S65 : Ty} (wf : (wfTy k87 S65)) (k88 : Hvl) (S66 : Ty) (wf1 : (wfTy k88 S66)) :
-    (forall {d79 : (Trace ty)} {k90 : Hvl} ,
-      (substhvl_ty k87 d79 k88 k90) -> (wfTy k90 (tsubstTy d79 S65 S66))).
+  Lemma substhvl_ty_wfTy {k97 : Hvl} {S66 : Ty} (wf : (wfTy k97 S66)) (k98 : Hvl) (S67 : Ty) (wf1 : (wfTy k98 S67)) :
+    (forall {d79 : (Trace ty)} {k100 : Hvl} ,
+      (substhvl_ty k97 d79 k98 k100) -> (wfTy k100 (tsubstTy d79 S66 S67))).
   Proof.
-    apply ((substhvl_ty_wfTRec_Ty wf k88)).
+    apply ((substhvl_ty_wfTRec_Ty wf k98)).
     auto .
   Qed.
-  Definition substhvl_tm_wfPat_PRec {k87 : Hvl} : (forall (k88 : Hvl) ,
-    (forall (p29 : Pat) (wf0 : (wfPat k88 p29)) ,
-      (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-        (substhvl_tm k87 d78 k88 k89) -> (wfPat k89 p29))) /\
-    (forall (ps17 : PRec) (wf0 : (wfPRec k88 ps17)) ,
-      (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-        (substhvl_tm k87 d78 k88 k89) -> (wfPRec k89 ps17)))) := (fun (k88 : Hvl) =>
-    (ind_wfPat_PRec k88 (fun (p29 : Pat) (wf0 : (wfPat k88 p29)) =>
-      (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-        (substhvl_tm k87 d78 k88 k89) -> (wfPat k89 p29))) (fun (ps17 : PRec) (wf0 : (wfPRec k88 ps17)) =>
-      (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-        (substhvl_tm k87 d78 k88 k89) -> (wfPRec k89 ps17))) (fun (T : Ty) (wf0 : (wfTy k88 T)) {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-      (wfPat_pvar k89 (substhvl_tm_wfTy k88 T wf0 (weaken_substhvl_tm H0 del)))) (fun (ps : PRec) (wf0 : (wfPRec k88 ps)) IHps {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-      (wfPat_prec k89 (IHps (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)))) (fun {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-      (wfPRec_pnil k89)) (fun (l : Lab) (wf0 : (wfLab k88 l)) (p : Pat) (wf1 : (wfPat k88 p)) IHp (ps : PRec) (wf2 : (wfPRec k88 ps)) IHps {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-      (wfPRec_pcons k89 (substhvl_tm_wfLab k88 l wf0 (weaken_substhvl_tm H0 del)) (IHp (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)) (IHps (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)))))).
-  Lemma substhvl_tm_wfPat {k87 : Hvl} (k88 : Hvl) (p29 : Pat) (wf0 : (wfPat k88 p29)) :
-    (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-      (substhvl_tm k87 d78 k88 k89) -> (wfPat k89 p29)).
+  Definition substhvl_tm_wfPat_PRec {k97 : Hvl} : (forall (k98 : Hvl) ,
+    (forall (p30 : Pat) (wf0 : (wfPat k98 p30)) ,
+      (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+        (substhvl_tm k97 d78 k98 k99) -> (wfPat k99 p30))) /\
+    (forall (ps18 : PRec) (wf0 : (wfPRec k98 ps18)) ,
+      (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+        (substhvl_tm k97 d78 k98 k99) -> (wfPRec k99 ps18)))) := (fun (k98 : Hvl) =>
+    (ind_wfPat_PRec k98 (fun (p30 : Pat) (wf0 : (wfPat k98 p30)) =>
+      (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+        (substhvl_tm k97 d78 k98 k99) -> (wfPat k99 p30))) (fun (ps18 : PRec) (wf0 : (wfPRec k98 ps18)) =>
+      (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+        (substhvl_tm k97 d78 k98 k99) -> (wfPRec k99 ps18))) (fun (T : Ty) (wf0 : (wfTy k98 T)) {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+      (wfPat_pvar k99 (substhvl_tm_wfTy k98 T wf0 (weaken_substhvl_tm H0 del)))) (fun (ps : PRec) (wf0 : (wfPRec k98 ps)) IHps {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+      (wfPat_prec k99 (IHps (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)))) (fun {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+      (wfPRec_pnil k99)) (fun (l : Lab) (wf0 : (wfLab k98 l)) (p : Pat) (wf1 : (wfPat k98 p)) IHp (ps : PRec) (wf2 : (wfPRec k98 ps)) IHps {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+      (wfPRec_pcons k99 (substhvl_tm_wfLab k98 l wf0 (weaken_substhvl_tm H0 del)) (IHp (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)) (IHps (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)))))).
+  Lemma substhvl_tm_wfPat {k97 : Hvl} (k98 : Hvl) (p30 : Pat) (wf0 : (wfPat k98 p30)) :
+    (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+      (substhvl_tm k97 d78 k98 k99) -> (wfPat k99 p30)).
   Proof.
-    apply ((substhvl_tm_wfPat_PRec k88)).
+    apply ((substhvl_tm_wfPat_PRec k98)).
     auto .
   Qed.
-  Lemma substhvl_tm_wfPRec {k87 : Hvl} (k88 : Hvl) (ps17 : PRec) (wf1 : (wfPRec k88 ps17)) :
-    (forall {d79 : (Trace tm)} {k90 : Hvl} ,
-      (substhvl_tm k87 d79 k88 k90) -> (wfPRec k90 ps17)).
+  Lemma substhvl_tm_wfPRec {k97 : Hvl} (k98 : Hvl) (ps18 : PRec) (wf1 : (wfPRec k98 ps18)) :
+    (forall {d79 : (Trace tm)} {k100 : Hvl} ,
+      (substhvl_tm k97 d79 k98 k100) -> (wfPRec k100 ps18)).
   Proof.
-    apply ((substhvl_tm_wfPat_PRec k88)).
+    apply ((substhvl_tm_wfPat_PRec k98)).
     auto .
   Qed.
-  Definition substhvl_ty_wfPat_PRec {k87 : Hvl} {S65 : Ty} (wf : (wfTy k87 S65)) : (forall (k88 : Hvl) ,
-    (forall (p29 : Pat) (wf0 : (wfPat k88 p29)) ,
-      (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-        (substhvl_ty k87 d78 k88 k89) -> (wfPat k89 (tsubstPat d78 S65 p29)))) /\
-    (forall (ps17 : PRec) (wf0 : (wfPRec k88 ps17)) ,
-      (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-        (substhvl_ty k87 d78 k88 k89) -> (wfPRec k89 (tsubstPRec d78 S65 ps17))))) := (fun (k88 : Hvl) =>
-    (ind_wfPat_PRec k88 (fun (p29 : Pat) (wf0 : (wfPat k88 p29)) =>
-      (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-        (substhvl_ty k87 d78 k88 k89) -> (wfPat k89 (tsubstPat d78 S65 p29)))) (fun (ps17 : PRec) (wf0 : (wfPRec k88 ps17)) =>
-      (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-        (substhvl_ty k87 d78 k88 k89) -> (wfPRec k89 (tsubstPRec d78 S65 ps17)))) (fun (T : Ty) (wf0 : (wfTy k88 T)) {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-      (wfPat_pvar k89 (substhvl_ty_wfTy wf k88 T wf0 (weaken_substhvl_ty H0 del)))) (fun (ps : PRec) (wf0 : (wfPRec k88 ps)) IHps {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-      (wfPat_prec k89 (IHps (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)))) (fun {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-      (wfPRec_pnil k89)) (fun (l : Lab) (wf0 : (wfLab k88 l)) (p : Pat) (wf1 : (wfPat k88 p)) IHp (ps : PRec) (wf2 : (wfPRec k88 ps)) IHps {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-      (wfPRec_pcons k89 (substhvl_ty_wfLab k88 l wf0 (weaken_substhvl_ty H0 del)) (IHp (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)) (IHps (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)))))).
-  Lemma substhvl_ty_wfPat {k87 : Hvl} {S65 : Ty} (wf : (wfTy k87 S65)) (k88 : Hvl) (p29 : Pat) (wf0 : (wfPat k88 p29)) :
-    (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-      (substhvl_ty k87 d78 k88 k89) -> (wfPat k89 (tsubstPat d78 S65 p29))).
+  Definition substhvl_ty_wfPat_PRec {k97 : Hvl} {S66 : Ty} (wf : (wfTy k97 S66)) : (forall (k98 : Hvl) ,
+    (forall (p30 : Pat) (wf0 : (wfPat k98 p30)) ,
+      (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+        (substhvl_ty k97 d78 k98 k99) -> (wfPat k99 (tsubstPat d78 S66 p30)))) /\
+    (forall (ps18 : PRec) (wf0 : (wfPRec k98 ps18)) ,
+      (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+        (substhvl_ty k97 d78 k98 k99) -> (wfPRec k99 (tsubstPRec d78 S66 ps18))))) := (fun (k98 : Hvl) =>
+    (ind_wfPat_PRec k98 (fun (p30 : Pat) (wf0 : (wfPat k98 p30)) =>
+      (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+        (substhvl_ty k97 d78 k98 k99) -> (wfPat k99 (tsubstPat d78 S66 p30)))) (fun (ps18 : PRec) (wf0 : (wfPRec k98 ps18)) =>
+      (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+        (substhvl_ty k97 d78 k98 k99) -> (wfPRec k99 (tsubstPRec d78 S66 ps18)))) (fun (T : Ty) (wf0 : (wfTy k98 T)) {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+      (wfPat_pvar k99 (substhvl_ty_wfTy wf k98 T wf0 (weaken_substhvl_ty H0 del)))) (fun (ps : PRec) (wf0 : (wfPRec k98 ps)) IHps {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+      (wfPat_prec k99 (IHps (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)))) (fun {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+      (wfPRec_pnil k99)) (fun (l : Lab) (wf0 : (wfLab k98 l)) (p : Pat) (wf1 : (wfPat k98 p)) IHp (ps : PRec) (wf2 : (wfPRec k98 ps)) IHps {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+      (wfPRec_pcons k99 (substhvl_ty_wfLab k98 l wf0 (weaken_substhvl_ty H0 del)) (IHp (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)) (IHps (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)))))).
+  Lemma substhvl_ty_wfPat {k97 : Hvl} {S66 : Ty} (wf : (wfTy k97 S66)) (k98 : Hvl) (p30 : Pat) (wf0 : (wfPat k98 p30)) :
+    (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+      (substhvl_ty k97 d78 k98 k99) -> (wfPat k99 (tsubstPat d78 S66 p30))).
   Proof.
-    apply ((substhvl_ty_wfPat_PRec wf k88)).
+    apply ((substhvl_ty_wfPat_PRec wf k98)).
     auto .
   Qed.
-  Lemma substhvl_ty_wfPRec {k87 : Hvl} {S65 : Ty} (wf : (wfTy k87 S65)) (k88 : Hvl) (ps17 : PRec) (wf1 : (wfPRec k88 ps17)) :
-    (forall {d79 : (Trace ty)} {k90 : Hvl} ,
-      (substhvl_ty k87 d79 k88 k90) -> (wfPRec k90 (tsubstPRec d79 S65 ps17))).
+  Lemma substhvl_ty_wfPRec {k97 : Hvl} {S66 : Ty} (wf : (wfTy k97 S66)) (k98 : Hvl) (ps18 : PRec) (wf1 : (wfPRec k98 ps18)) :
+    (forall {d79 : (Trace ty)} {k100 : Hvl} ,
+      (substhvl_ty k97 d79 k98 k100) -> (wfPRec k100 (tsubstPRec d79 S66 ps18))).
   Proof.
-    apply ((substhvl_ty_wfPat_PRec wf k88)).
+    apply ((substhvl_ty_wfPat_PRec wf k98)).
     auto .
   Qed.
-  Definition substhvl_tm_wfTm_Rec {k87 : Hvl} {s24 : Tm} (wf : (wfTm k87 s24)) : (forall (k88 : Hvl) ,
-    (forall (s25 : Tm) (wf0 : (wfTm k88 s25)) ,
-      (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-        (substhvl_tm k87 d78 k88 k89) -> (wfTm k89 (substTm d78 s24 s25)))) /\
-    (forall (ss : Rec) (wf0 : (wfRec k88 ss)) ,
-      (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-        (substhvl_tm k87 d78 k88 k89) -> (wfRec k89 (substRec d78 s24 ss))))) := (ind_wfTm_Rec (fun (k88 : Hvl) (s25 : Tm) (wf0 : (wfTm k88 s25)) =>
-    (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-      (substhvl_tm k87 d78 k88 k89) -> (wfTm k89 (substTm d78 s24 s25)))) (fun (k88 : Hvl) (ss : Rec) (wf0 : (wfRec k88 ss)) =>
-    (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-      (substhvl_tm k87 d78 k88 k89) -> (wfRec k89 (substRec d78 s24 ss)))) (fun (k88 : Hvl) {x59 : (Index tm)} (wfi : (wfindex k88 x59)) {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (substhvl_tm_wfindex_tm wf del wfi)) (fun (k88 : Hvl) (T : Ty) (wf0 : (wfTy k88 T)) (t : Tm) (wf1 : (wfTm (HS tm k88) t)) IHt170 {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTm_abs k89 (substhvl_tm_wfTy k88 T wf0 (weaken_substhvl_tm H0 del)) (IHt170 (weakenTrace d78 (HS tm H0)) (HS tm k89) (weaken_substhvl_tm (HS tm H0) del)))) (fun (k88 : Hvl) (t1 : Tm) (wf0 : (wfTm k88 t1)) IHt170 (t2 : Tm) (wf1 : (wfTm k88 t2)) IHt171 {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTm_app k89 (IHt170 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)) (IHt171 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)))) (fun (k88 : Hvl) (T : Ty) (wf0 : (wfTy k88 T)) (t : Tm) (wf1 : (wfTm (HS ty k88) t)) IHt170 {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTm_tabs k89 (substhvl_tm_wfTy k88 T wf0 (weaken_substhvl_tm H0 del)) (IHt170 (weakenTrace d78 (HS ty H0)) (HS ty k89) (weaken_substhvl_tm (HS ty H0) del)))) (fun (k88 : Hvl) (t : Tm) (wf0 : (wfTm k88 t)) IHt170 (T : Ty) (wf1 : (wfTy k88 T)) {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTm_tapp k89 (IHt170 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)) (substhvl_tm_wfTy k88 T wf1 (weaken_substhvl_tm H0 del)))) (fun (k88 : Hvl) (ts : Rec) (wf0 : (wfRec k88 ts)) IHts37 {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTm_rec k89 (IHts37 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)))) (fun (k88 : Hvl) (t : Tm) (wf0 : (wfTm k88 t)) IHt170 (l : Lab) (wf1 : (wfLab k88 l)) {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTm_prj k89 (IHt170 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)) (substhvl_tm_wfLab k88 l wf1 (weaken_substhvl_tm H0 del)))) (fun (k88 : Hvl) (p : Pat) (wf0 : (wfPat k88 p)) (t1 : Tm) (wf1 : (wfTm k88 t1)) IHt170 (t2 : Tm) (wf2 : (wfTm (appendHvl k88 (bindPat p)) t2)) IHt171 {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfTm_lett k89 (substhvl_tm_wfPat k88 p wf0 (weaken_substhvl_tm H0 del)) (IHt170 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)) (IHt171 (weakenTrace d78 (bindPat p)) (appendHvl k89 (bindPat p)) (weaken_substhvl_tm (bindPat p) del)))) (fun (k88 : Hvl) {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfRec_rnil k89)) (fun (k88 : Hvl) (l : Lab) (wf0 : (wfLab k88 l)) (t : Tm) (wf1 : (wfTm k88 t)) IHt170 (ts : Rec) (wf2 : (wfRec k88 ts)) IHts37 {d78 : (Trace tm)} {k89 : Hvl} (del : (substhvl_tm k87 d78 k88 k89)) =>
-    (wfRec_rcons k89 (substhvl_tm_wfLab k88 l wf0 (weaken_substhvl_tm H0 del)) (IHt170 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del)) (IHts37 (weakenTrace d78 H0) k89 (weaken_substhvl_tm H0 del))))).
-  Lemma substhvl_tm_wfTm {k87 : Hvl} {s24 : Tm} (wf : (wfTm k87 s24)) (k88 : Hvl) (s25 : Tm) (wf0 : (wfTm k88 s25)) :
-    (forall {d78 : (Trace tm)} {k89 : Hvl} ,
-      (substhvl_tm k87 d78 k88 k89) -> (wfTm k89 (substTm d78 s24 s25))).
+  Definition substhvl_tm_wfTm_Rec {k97 : Hvl} {s24 : Tm} (wf : (wfTm k97 s24)) : (forall (k98 : Hvl) ,
+    (forall (s25 : Tm) (wf0 : (wfTm k98 s25)) ,
+      (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+        (substhvl_tm k97 d78 k98 k99) -> (wfTm k99 (substTm d78 s24 s25)))) /\
+    (forall (ss : Rec) (wf0 : (wfRec k98 ss)) ,
+      (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+        (substhvl_tm k97 d78 k98 k99) -> (wfRec k99 (substRec d78 s24 ss))))) := (ind_wfTm_Rec (fun (k98 : Hvl) (s25 : Tm) (wf0 : (wfTm k98 s25)) =>
+    (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+      (substhvl_tm k97 d78 k98 k99) -> (wfTm k99 (substTm d78 s24 s25)))) (fun (k98 : Hvl) (ss : Rec) (wf0 : (wfRec k98 ss)) =>
+    (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+      (substhvl_tm k97 d78 k98 k99) -> (wfRec k99 (substRec d78 s24 ss)))) (fun (k98 : Hvl) {x59 : (Index tm)} (wfi : (wfindex k98 x59)) {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (substhvl_tm_wfindex_tm wf del wfi)) (fun (k98 : Hvl) (T : Ty) (wf0 : (wfTy k98 T)) (t : Tm) (wf1 : (wfTm (HS tm k98) t)) IHt170 {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTm_abs k99 (substhvl_tm_wfTy k98 T wf0 (weaken_substhvl_tm H0 del)) (IHt170 (weakenTrace d78 (HS tm H0)) (HS tm k99) (weaken_substhvl_tm (HS tm H0) del)))) (fun (k98 : Hvl) (t1 : Tm) (wf0 : (wfTm k98 t1)) IHt170 (t2 : Tm) (wf1 : (wfTm k98 t2)) IHt171 {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTm_app k99 (IHt170 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)) (IHt171 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)))) (fun (k98 : Hvl) (T : Ty) (wf0 : (wfTy k98 T)) (t : Tm) (wf1 : (wfTm (HS ty k98) t)) IHt170 {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTm_tabs k99 (substhvl_tm_wfTy k98 T wf0 (weaken_substhvl_tm H0 del)) (IHt170 (weakenTrace d78 (HS ty H0)) (HS ty k99) (weaken_substhvl_tm (HS ty H0) del)))) (fun (k98 : Hvl) (t : Tm) (wf0 : (wfTm k98 t)) IHt170 (T : Ty) (wf1 : (wfTy k98 T)) {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTm_tapp k99 (IHt170 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)) (substhvl_tm_wfTy k98 T wf1 (weaken_substhvl_tm H0 del)))) (fun (k98 : Hvl) (ts : Rec) (wf0 : (wfRec k98 ts)) IHts37 {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTm_rec k99 (IHts37 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)))) (fun (k98 : Hvl) (t : Tm) (wf0 : (wfTm k98 t)) IHt170 (l : Lab) (wf1 : (wfLab k98 l)) {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTm_prj k99 (IHt170 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)) (substhvl_tm_wfLab k98 l wf1 (weaken_substhvl_tm H0 del)))) (fun (k98 : Hvl) (p : Pat) (wf0 : (wfPat k98 p)) (t1 : Tm) (wf1 : (wfTm k98 t1)) IHt170 (t2 : Tm) (wf2 : (wfTm (appendHvl k98 (bindPat p)) t2)) IHt171 {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfTm_lett k99 (substhvl_tm_wfPat k98 p wf0 (weaken_substhvl_tm H0 del)) (IHt170 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)) (IHt171 (weakenTrace d78 (bindPat p)) (appendHvl k99 (bindPat p)) (weaken_substhvl_tm (bindPat p) del)))) (fun (k98 : Hvl) {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfRec_rnil k99)) (fun (k98 : Hvl) (l : Lab) (wf0 : (wfLab k98 l)) (t : Tm) (wf1 : (wfTm k98 t)) IHt170 (ts : Rec) (wf2 : (wfRec k98 ts)) IHts37 {d78 : (Trace tm)} {k99 : Hvl} (del : (substhvl_tm k97 d78 k98 k99)) =>
+    (wfRec_rcons k99 (substhvl_tm_wfLab k98 l wf0 (weaken_substhvl_tm H0 del)) (IHt170 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del)) (IHts37 (weakenTrace d78 H0) k99 (weaken_substhvl_tm H0 del))))).
+  Lemma substhvl_tm_wfTm {k97 : Hvl} {s24 : Tm} (wf : (wfTm k97 s24)) (k98 : Hvl) (s25 : Tm) (wf0 : (wfTm k98 s25)) :
+    (forall {d78 : (Trace tm)} {k99 : Hvl} ,
+      (substhvl_tm k97 d78 k98 k99) -> (wfTm k99 (substTm d78 s24 s25))).
   Proof.
-    apply ((substhvl_tm_wfTm_Rec wf k88)).
+    apply ((substhvl_tm_wfTm_Rec wf k98)).
     auto .
   Qed.
-  Lemma substhvl_tm_wfRec {k87 : Hvl} {s24 : Tm} (wf : (wfTm k87 s24)) (k88 : Hvl) (ss : Rec) (wf1 : (wfRec k88 ss)) :
-    (forall {d79 : (Trace tm)} {k90 : Hvl} ,
-      (substhvl_tm k87 d79 k88 k90) -> (wfRec k90 (substRec d79 s24 ss))).
+  Lemma substhvl_tm_wfRec {k97 : Hvl} {s24 : Tm} (wf : (wfTm k97 s24)) (k98 : Hvl) (ss : Rec) (wf1 : (wfRec k98 ss)) :
+    (forall {d79 : (Trace tm)} {k100 : Hvl} ,
+      (substhvl_tm k97 d79 k98 k100) -> (wfRec k100 (substRec d79 s24 ss))).
   Proof.
-    apply ((substhvl_tm_wfTm_Rec wf k88)).
+    apply ((substhvl_tm_wfTm_Rec wf k98)).
     auto .
   Qed.
-  Definition substhvl_ty_wfTm_Rec {k87 : Hvl} {S65 : Ty} (wf : (wfTy k87 S65)) : (forall (k88 : Hvl) ,
-    (forall (s24 : Tm) (wf0 : (wfTm k88 s24)) ,
-      (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-        (substhvl_ty k87 d78 k88 k89) -> (wfTm k89 (tsubstTm d78 S65 s24)))) /\
-    (forall (ss : Rec) (wf0 : (wfRec k88 ss)) ,
-      (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-        (substhvl_ty k87 d78 k88 k89) -> (wfRec k89 (tsubstRec d78 S65 ss))))) := (ind_wfTm_Rec (fun (k88 : Hvl) (s24 : Tm) (wf0 : (wfTm k88 s24)) =>
-    (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-      (substhvl_ty k87 d78 k88 k89) -> (wfTm k89 (tsubstTm d78 S65 s24)))) (fun (k88 : Hvl) (ss : Rec) (wf0 : (wfRec k88 ss)) =>
-    (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-      (substhvl_ty k87 d78 k88 k89) -> (wfRec k89 (tsubstRec d78 S65 ss)))) (fun (k88 : Hvl) {x59 : (Index tm)} (wfi : (wfindex k88 x59)) {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTm_var k89 (substhvl_ty_wfindex_tm del wfi))) (fun (k88 : Hvl) (T : Ty) (wf0 : (wfTy k88 T)) (t : Tm) (wf1 : (wfTm (HS tm k88) t)) IHt170 {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTm_abs k89 (substhvl_ty_wfTy wf k88 T wf0 (weaken_substhvl_ty H0 del)) (IHt170 (weakenTrace d78 (HS tm H0)) (HS tm k89) (weaken_substhvl_ty (HS tm H0) del)))) (fun (k88 : Hvl) (t1 : Tm) (wf0 : (wfTm k88 t1)) IHt170 (t2 : Tm) (wf1 : (wfTm k88 t2)) IHt171 {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTm_app k89 (IHt170 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)) (IHt171 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)))) (fun (k88 : Hvl) (T : Ty) (wf0 : (wfTy k88 T)) (t : Tm) (wf1 : (wfTm (HS ty k88) t)) IHt170 {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTm_tabs k89 (substhvl_ty_wfTy wf k88 T wf0 (weaken_substhvl_ty H0 del)) (IHt170 (weakenTrace d78 (HS ty H0)) (HS ty k89) (weaken_substhvl_ty (HS ty H0) del)))) (fun (k88 : Hvl) (t : Tm) (wf0 : (wfTm k88 t)) IHt170 (T : Ty) (wf1 : (wfTy k88 T)) {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTm_tapp k89 (IHt170 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)) (substhvl_ty_wfTy wf k88 T wf1 (weaken_substhvl_ty H0 del)))) (fun (k88 : Hvl) (ts : Rec) (wf0 : (wfRec k88 ts)) IHts37 {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTm_rec k89 (IHts37 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)))) (fun (k88 : Hvl) (t : Tm) (wf0 : (wfTm k88 t)) IHt170 (l : Lab) (wf1 : (wfLab k88 l)) {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTm_prj k89 (IHt170 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)) (substhvl_ty_wfLab k88 l wf1 (weaken_substhvl_ty H0 del)))) (fun (k88 : Hvl) (p : Pat) (wf0 : (wfPat k88 p)) (t1 : Tm) (wf1 : (wfTm k88 t1)) IHt170 (t2 : Tm) (wf2 : (wfTm (appendHvl k88 (bindPat p)) t2)) IHt171 {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfTm_lett k89 (substhvl_ty_wfPat wf k88 p wf0 (weaken_substhvl_ty H0 del)) (IHt170 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)) (eq_ind2 wfTm (f_equal2 appendHvl (eq_refl k89) (f_equal2 appendHvl (eq_sym (stability_tsubst_bindPat _ _ _)) (eq_refl H0))) eq_refl (IHt171 (weakenTrace d78 (bindPat p)) (appendHvl k89 (bindPat p)) (weaken_substhvl_ty (bindPat p) del))))) (fun (k88 : Hvl) {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfRec_rnil k89)) (fun (k88 : Hvl) (l : Lab) (wf0 : (wfLab k88 l)) (t : Tm) (wf1 : (wfTm k88 t)) IHt170 (ts : Rec) (wf2 : (wfRec k88 ts)) IHts37 {d78 : (Trace ty)} {k89 : Hvl} (del : (substhvl_ty k87 d78 k88 k89)) =>
-    (wfRec_rcons k89 (substhvl_ty_wfLab k88 l wf0 (weaken_substhvl_ty H0 del)) (IHt170 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del)) (IHts37 (weakenTrace d78 H0) k89 (weaken_substhvl_ty H0 del))))).
-  Lemma substhvl_ty_wfTm {k87 : Hvl} {S65 : Ty} (wf : (wfTy k87 S65)) (k88 : Hvl) (s24 : Tm) (wf0 : (wfTm k88 s24)) :
-    (forall {d78 : (Trace ty)} {k89 : Hvl} ,
-      (substhvl_ty k87 d78 k88 k89) -> (wfTm k89 (tsubstTm d78 S65 s24))).
+  Definition substhvl_ty_wfTm_Rec {k97 : Hvl} {S66 : Ty} (wf : (wfTy k97 S66)) : (forall (k98 : Hvl) ,
+    (forall (s24 : Tm) (wf0 : (wfTm k98 s24)) ,
+      (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+        (substhvl_ty k97 d78 k98 k99) -> (wfTm k99 (tsubstTm d78 S66 s24)))) /\
+    (forall (ss : Rec) (wf0 : (wfRec k98 ss)) ,
+      (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+        (substhvl_ty k97 d78 k98 k99) -> (wfRec k99 (tsubstRec d78 S66 ss))))) := (ind_wfTm_Rec (fun (k98 : Hvl) (s24 : Tm) (wf0 : (wfTm k98 s24)) =>
+    (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+      (substhvl_ty k97 d78 k98 k99) -> (wfTm k99 (tsubstTm d78 S66 s24)))) (fun (k98 : Hvl) (ss : Rec) (wf0 : (wfRec k98 ss)) =>
+    (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+      (substhvl_ty k97 d78 k98 k99) -> (wfRec k99 (tsubstRec d78 S66 ss)))) (fun (k98 : Hvl) {x59 : (Index tm)} (wfi : (wfindex k98 x59)) {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTm_var k99 (substhvl_ty_wfindex_tm del wfi))) (fun (k98 : Hvl) (T : Ty) (wf0 : (wfTy k98 T)) (t : Tm) (wf1 : (wfTm (HS tm k98) t)) IHt170 {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTm_abs k99 (substhvl_ty_wfTy wf k98 T wf0 (weaken_substhvl_ty H0 del)) (IHt170 (weakenTrace d78 (HS tm H0)) (HS tm k99) (weaken_substhvl_ty (HS tm H0) del)))) (fun (k98 : Hvl) (t1 : Tm) (wf0 : (wfTm k98 t1)) IHt170 (t2 : Tm) (wf1 : (wfTm k98 t2)) IHt171 {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTm_app k99 (IHt170 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)) (IHt171 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)))) (fun (k98 : Hvl) (T : Ty) (wf0 : (wfTy k98 T)) (t : Tm) (wf1 : (wfTm (HS ty k98) t)) IHt170 {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTm_tabs k99 (substhvl_ty_wfTy wf k98 T wf0 (weaken_substhvl_ty H0 del)) (IHt170 (weakenTrace d78 (HS ty H0)) (HS ty k99) (weaken_substhvl_ty (HS ty H0) del)))) (fun (k98 : Hvl) (t : Tm) (wf0 : (wfTm k98 t)) IHt170 (T : Ty) (wf1 : (wfTy k98 T)) {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTm_tapp k99 (IHt170 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)) (substhvl_ty_wfTy wf k98 T wf1 (weaken_substhvl_ty H0 del)))) (fun (k98 : Hvl) (ts : Rec) (wf0 : (wfRec k98 ts)) IHts37 {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTm_rec k99 (IHts37 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)))) (fun (k98 : Hvl) (t : Tm) (wf0 : (wfTm k98 t)) IHt170 (l : Lab) (wf1 : (wfLab k98 l)) {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTm_prj k99 (IHt170 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)) (substhvl_ty_wfLab k98 l wf1 (weaken_substhvl_ty H0 del)))) (fun (k98 : Hvl) (p : Pat) (wf0 : (wfPat k98 p)) (t1 : Tm) (wf1 : (wfTm k98 t1)) IHt170 (t2 : Tm) (wf2 : (wfTm (appendHvl k98 (bindPat p)) t2)) IHt171 {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfTm_lett k99 (substhvl_ty_wfPat wf k98 p wf0 (weaken_substhvl_ty H0 del)) (IHt170 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)) (eq_ind2 wfTm (f_equal2 appendHvl (eq_refl k99) (f_equal2 appendHvl (eq_sym (stability_tsubst_bindPat _ _ _)) (eq_refl H0))) eq_refl (IHt171 (weakenTrace d78 (bindPat p)) (appendHvl k99 (bindPat p)) (weaken_substhvl_ty (bindPat p) del))))) (fun (k98 : Hvl) {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfRec_rnil k99)) (fun (k98 : Hvl) (l : Lab) (wf0 : (wfLab k98 l)) (t : Tm) (wf1 : (wfTm k98 t)) IHt170 (ts : Rec) (wf2 : (wfRec k98 ts)) IHts37 {d78 : (Trace ty)} {k99 : Hvl} (del : (substhvl_ty k97 d78 k98 k99)) =>
+    (wfRec_rcons k99 (substhvl_ty_wfLab k98 l wf0 (weaken_substhvl_ty H0 del)) (IHt170 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del)) (IHts37 (weakenTrace d78 H0) k99 (weaken_substhvl_ty H0 del))))).
+  Lemma substhvl_ty_wfTm {k97 : Hvl} {S66 : Ty} (wf : (wfTy k97 S66)) (k98 : Hvl) (s24 : Tm) (wf0 : (wfTm k98 s24)) :
+    (forall {d78 : (Trace ty)} {k99 : Hvl} ,
+      (substhvl_ty k97 d78 k98 k99) -> (wfTm k99 (tsubstTm d78 S66 s24))).
   Proof.
-    apply ((substhvl_ty_wfTm_Rec wf k88)).
+    apply ((substhvl_ty_wfTm_Rec wf k98)).
     auto .
   Qed.
-  Lemma substhvl_ty_wfRec {k87 : Hvl} {S65 : Ty} (wf : (wfTy k87 S65)) (k88 : Hvl) (ss : Rec) (wf1 : (wfRec k88 ss)) :
-    (forall {d79 : (Trace ty)} {k90 : Hvl} ,
-      (substhvl_ty k87 d79 k88 k90) -> (wfRec k90 (tsubstRec d79 S65 ss))).
+  Lemma substhvl_ty_wfRec {k97 : Hvl} {S66 : Ty} (wf : (wfTy k97 S66)) (k98 : Hvl) (ss : Rec) (wf1 : (wfRec k98 ss)) :
+    (forall {d79 : (Trace ty)} {k100 : Hvl} ,
+      (substhvl_ty k97 d79 k98 k100) -> (wfRec k100 (tsubstRec d79 S66 ss))).
   Proof.
-    apply ((substhvl_ty_wfTm_Rec wf k88)).
+    apply ((substhvl_ty_wfTm_Rec wf k98)).
     auto .
   Qed.
 End SubstWellFormed.
@@ -2875,6 +2874,67 @@ End SubstWellFormed.
  Hint Constructors substhvl_tm substhvl_ty : subst.
  Hint Constructors substhvl_tm substhvl_ty : subst_wf.
  Hint Constructors substhvl_tm substhvl_ty : wf.
+Fixpoint subhvl_tm (k97 : Hvl) {struct k97} : Prop :=
+  match k97 with
+    | (H0) => True
+    | (HS a k97) => match a with
+      | (tm) => (subhvl_tm k97)
+      | _ => False
+    end
+  end.
+Lemma subhvl_tm_append  :
+  (forall (k97 : Hvl) (k98 : Hvl) ,
+    (subhvl_tm k97) -> (subhvl_tm k98) -> (subhvl_tm (appendHvl k97 k98))).
+Proof.
+  needleGenericSubHvlAppend .
+Qed.
+ Hint Resolve subhvl_tm_append : infra.
+ Hint Resolve subhvl_tm_append : wf.
+Lemma wfLab_strengthen_subhvl_tm  :
+  (forall (k88 : Hvl) (k87 : Hvl) (l51 : Lab) ,
+    (subhvl_tm k88) -> (wfLab (appendHvl k87 k88) (weakenLab l51 k88)) -> (wfLab k87 l51)).
+Proof.
+  needleGenericWellformedStrengthen .
+Qed.
+Lemma wfPRec_strengthen_subhvl_tm  :
+  (forall (k90 : Hvl) (k89 : Hvl) (ps17 : PRec) ,
+    (subhvl_tm k90) -> (wfPRec (appendHvl k89 k90) (weakenPRec ps17 k90)) -> (wfPRec k89 ps17)).
+Proof.
+  needleGenericWellformedStrengthen .
+Qed.
+Lemma wfPat_strengthen_subhvl_tm  :
+  (forall (k92 : Hvl) (k91 : Hvl) (p29 : Pat) ,
+    (subhvl_tm k92) -> (wfPat (appendHvl k91 k92) (weakenPat p29 k92)) -> (wfPat k91 p29)).
+Proof.
+  needleGenericWellformedStrengthen .
+Qed.
+Lemma wfTRec_strengthen_subhvl_tm  :
+  (forall (k94 : Hvl) (k93 : Hvl) (SS : TRec) ,
+    (subhvl_tm k94) -> (wfTRec (appendHvl k93 k94) (weakenTRec SS k94)) -> (wfTRec k93 SS)).
+Proof.
+  needleGenericWellformedStrengthen .
+Qed.
+Lemma wfTy_strengthen_subhvl_tm  :
+  (forall (k96 : Hvl) (k95 : Hvl) (S65 : Ty) ,
+    (subhvl_tm k96) -> (wfTy (appendHvl k95 k96) (weakenTy S65 k96)) -> (wfTy k95 S65)).
+Proof.
+  needleGenericWellformedStrengthen .
+Qed.
+ Hint Extern 2 ((wfLab _ _)) => match goal with
+  | H : (wfLab (appendHvl _ _) (weakenLab _ _)) |- _ => apply (wfLab_strengthen_subhvl_tm) in H
+end : infra wf.
+ Hint Extern 2 ((wfPRec _ _)) => match goal with
+  | H0 : (wfPRec (appendHvl _ _) (weakenPRec _ _)) |- _ => apply (wfPRec_strengthen_subhvl_tm) in H0
+end : infra wf.
+ Hint Extern 2 ((wfPat _ _)) => match goal with
+  | H1 : (wfPat (appendHvl _ _) (weakenPat _ _)) |- _ => apply (wfPat_strengthen_subhvl_tm) in H1
+end : infra wf.
+ Hint Extern 2 ((wfTRec _ _)) => match goal with
+  | H2 : (wfTRec (appendHvl _ _) (weakenTRec _ _)) |- _ => apply (wfTRec_strengthen_subhvl_tm) in H2
+end : infra wf.
+ Hint Extern 2 ((wfTy _ _)) => match goal with
+  | H3 : (wfTy (appendHvl _ _) (weakenTy _ _)) |- _ => apply (wfTy_strengthen_subhvl_tm) in H3
+end : infra wf.
 Section Context.
   Inductive Env : Type :=
     | empty 
@@ -2882,15 +2942,15 @@ Section Context.
     | etvar (G : Env) (T : Ty).
   Fixpoint appendEnv (G : Env) (G0 : Env) : Env :=
     match G0 with
-      | empty => G
-      | evar G1 T => (evar (appendEnv G G1) T)
-      | etvar G1 T => (etvar (appendEnv G G1) T)
+      | (empty) => G
+      | (evar G1 T) => (evar (appendEnv G G1) T)
+      | (etvar G1 T) => (etvar (appendEnv G G1) T)
     end.
   Fixpoint domainEnv (G : Env) : Hvl :=
     match G with
-      | empty => H0
-      | evar G0 T => (HS tm (domainEnv G0))
-      | etvar G0 T => (HS ty (domainEnv G0))
+      | (empty) => H0
+      | (evar G0 T) => (HS tm (domainEnv G0))
+      | (etvar G0 T) => (HS ty (domainEnv G0))
     end.
   Lemma appendEnv_assoc  :
     (forall (G : Env) (G0 : Env) (G1 : Env) ,
@@ -2908,27 +2968,27 @@ Section Context.
   Qed.
   Fixpoint shiftEnv (c16 : (Cutoff tm)) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (shiftEnv c16 G0) T)
-      | etvar G0 T => (etvar (shiftEnv c16 G0) T)
+      | (empty) => empty
+      | (evar G0 T) => (evar (shiftEnv c16 G0) T)
+      | (etvar G0 T) => (etvar (shiftEnv c16 G0) T)
     end.
   Fixpoint tshiftEnv (c16 : (Cutoff ty)) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (tshiftEnv c16 G0) (tshiftTy (weakenCutoffty c16 (domainEnv G0)) T))
-      | etvar G0 T => (etvar (tshiftEnv c16 G0) (tshiftTy (weakenCutoffty c16 (domainEnv G0)) T))
+      | (empty) => empty
+      | (evar G0 T) => (evar (tshiftEnv c16 G0) (tshiftTy (weakenCutoffty c16 (domainEnv G0)) T))
+      | (etvar G0 T) => (etvar (tshiftEnv c16 G0) (tshiftTy (weakenCutoffty c16 (domainEnv G0)) T))
     end.
   Fixpoint substEnv (d78 : (Trace tm)) (s24 : Tm) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (substEnv d78 s24 G0) T)
-      | etvar G0 T => (etvar (substEnv d78 s24 G0) T)
+      | (empty) => empty
+      | (evar G0 T) => (evar (substEnv d78 s24 G0) T)
+      | (etvar G0 T) => (etvar (substEnv d78 s24 G0) T)
     end.
-  Fixpoint tsubstEnv (d78 : (Trace ty)) (S65 : Ty) (G : Env) : Env :=
+  Fixpoint tsubstEnv (d78 : (Trace ty)) (S66 : Ty) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (tsubstEnv d78 S65 G0) (tsubstTy (weakenTrace d78 (domainEnv G0)) S65 T))
-      | etvar G0 T => (etvar (tsubstEnv d78 S65 G0) (tsubstTy (weakenTrace d78 (domainEnv G0)) S65 T))
+      | (empty) => empty
+      | (evar G0 T) => (evar (tsubstEnv d78 S66 G0) (tsubstTy (weakenTrace d78 (domainEnv G0)) S66 T))
+      | (etvar G0 T) => (etvar (tsubstEnv d78 S66 G0) (tsubstTy (weakenTrace d78 (domainEnv G0)) S66 T))
     end.
   Lemma domainEnv_shiftEnv  :
     (forall (c16 : (Cutoff tm)) (G : Env) ,
@@ -2952,8 +3012,8 @@ Section Context.
     needleGenericDomainEnvSubstEnv .
   Qed.
   Lemma domainEnv_tsubstEnv  :
-    (forall (d78 : (Trace ty)) (S65 : Ty) (G : Env) ,
-      ((domainEnv (tsubstEnv d78 S65 G)) =
+    (forall (d78 : (Trace ty)) (S66 : Ty) (G : Env) ,
+      ((domainEnv (tsubstEnv d78 S66 G)) =
       (domainEnv G))).
   Proof.
     needleGenericDomainEnvSubstEnv .
@@ -2987,9 +3047,9 @@ Section ContextStuff.
       needleGenericSubstEnvAppendEnv .
     Qed.
     Lemma tsubstEnv_appendEnv  :
-      (forall (d78 : (Trace ty)) (S65 : Ty) (G : Env) (G0 : Env) ,
-        ((tsubstEnv d78 S65 (appendEnv G G0)) =
-        (appendEnv (tsubstEnv d78 S65 G) (tsubstEnv (weakenTrace d78 (domainEnv G)) S65 G0)))).
+      (forall (d78 : (Trace ty)) (S66 : Ty) (G : Env) (G0 : Env) ,
+        ((tsubstEnv d78 S66 (appendEnv G G0)) =
+        (appendEnv (tsubstEnv d78 S66 G) (tsubstEnv (weakenTrace d78 (domainEnv G)) S66 G0)))).
     Proof.
       needleGenericSubstEnvAppendEnv .
     Qed.
@@ -3020,46 +3080,46 @@ Section ContextStuff.
           {T98 : Ty} {T99 : Ty} :
           (lookup_etvar G X43 T98) -> (lookup_etvar (etvar G T99) (IS X43) (tshiftTy C0 T98)).
     Lemma lookup_evar_inversion_here  :
-      (forall (G : Env) (S65 : Ty) (S66 : Ty) ,
-        (lookup_evar (evar G S65) I0 S66) -> (S65 =
-        S66)).
+      (forall (G : Env) (S66 : Ty) (S67 : Ty) ,
+        (lookup_evar (evar G S66) I0 S67) -> (S66 =
+        S67)).
     Proof.
       needleGenericLookupInversion .
     Qed.
     Lemma lookup_etvar_inversion_here  :
-      (forall (G : Env) (S65 : Ty) (S66 : Ty) ,
-        (lookup_etvar (etvar G S65) I0 S66) -> ((tshiftTy C0 S65) =
-        S66)).
+      (forall (G : Env) (S66 : Ty) (S67 : Ty) ,
+        (lookup_etvar (etvar G S66) I0 S67) -> ((tshiftTy C0 S66) =
+        S67)).
     Proof.
       needleGenericLookupInversion .
     Qed.
     Lemma lookup_evar_functional  :
       (forall {G : Env} {x59 : (Index tm)} ,
-        (forall {S65 : Ty} ,
-          (lookup_evar G x59 S65) -> (forall {S66 : Ty} ,
-            (lookup_evar G x59 S66) -> (S65 =
-            S66)))).
+        (forall {S66 : Ty} ,
+          (lookup_evar G x59 S66) -> (forall {S67 : Ty} ,
+            (lookup_evar G x59 S67) -> (S66 =
+            S67)))).
     Proof.
       needleGenericLookupFunctional .
     Qed.
     Lemma lookup_etvar_functional  :
       (forall {G : Env} {X43 : (Index ty)} ,
-        (forall {S65 : Ty} ,
-          (lookup_etvar G X43 S65) -> (forall {S66 : Ty} ,
-            (lookup_etvar G X43 S66) -> (S65 =
-            S66)))).
+        (forall {S66 : Ty} ,
+          (lookup_etvar G X43 S66) -> (forall {S67 : Ty} ,
+            (lookup_etvar G X43 S67) -> (S66 =
+            S67)))).
     Proof.
       needleGenericLookupFunctional .
     Qed.
     Lemma lookup_evar_wf  :
-      (forall {G : Env} {x59 : (Index tm)} {S65 : Ty} ,
-        (lookup_evar G x59 S65) -> (wfTy (domainEnv G) S65)).
+      (forall {G : Env} {x59 : (Index tm)} {S66 : Ty} ,
+        (lookup_evar G x59 S66) -> (wfTy (domainEnv G) S66)).
     Proof.
       needleGenericLookupWellformedData .
     Qed.
     Lemma lookup_etvar_wf  :
-      (forall {G : Env} {X43 : (Index ty)} {S65 : Ty} ,
-        (lookup_etvar G X43 S65) -> (wfTy (domainEnv G) S65)).
+      (forall {G : Env} {X43 : (Index ty)} {S66 : Ty} ,
+        (lookup_etvar G X43 S66) -> (wfTy (domainEnv G) S66)).
     Proof.
       needleGenericLookupWellformedData .
     Qed.
@@ -3076,14 +3136,14 @@ Section ContextStuff.
       needleGenericWeakenLookup .
     Qed.
     Lemma lookup_evar_wfindex  :
-      (forall {G : Env} {x59 : (Index tm)} {S65 : Ty} ,
-        (lookup_evar G x59 S65) -> (wfindex (domainEnv G) x59)).
+      (forall {G : Env} {x59 : (Index tm)} {S66 : Ty} ,
+        (lookup_evar G x59 S66) -> (wfindex (domainEnv G) x59)).
     Proof.
       needleGenericLookupWellformedIndex .
     Qed.
     Lemma lookup_etvar_wfindex  :
-      (forall {G : Env} {X43 : (Index ty)} {S65 : Ty} ,
-        (lookup_etvar G X43 S65) -> (wfindex (domainEnv G) X43)).
+      (forall {G : Env} {X43 : (Index ty)} {S66 : Ty} ,
+        (lookup_etvar G X43 S66) -> (wfindex (domainEnv G) X43)).
     Proof.
       needleGenericLookupWellformedIndex .
     Qed.
@@ -3153,20 +3213,20 @@ Section ContextStuff.
   Proof.
     needleGenericWeakenSubstEnv .
   Qed.
-  Inductive subst_etvar (G : Env) (T98 : Ty) (S65 : Ty) : (Trace ty) -> Env -> Env -> Prop :=
+  Inductive subst_etvar (G : Env) (T98 : Ty) (S66 : Ty) : (Trace ty) -> Env -> Env -> Prop :=
     | subst_etvar_here :
-        (subst_etvar G T98 S65 X0 (etvar G T98) G)
+        (subst_etvar G T98 S66 X0 (etvar G T98) G)
     | subst_etvar_there_evar
         {d78 : (Trace ty)} {G0 : Env}
         {G1 : Env} {T : Ty} :
-        (subst_etvar G T98 S65 d78 G0 G1) -> (subst_etvar G T98 S65 (XS tm d78) (evar G0 T) (evar G1 (tsubstTy d78 S65 T)))
+        (subst_etvar G T98 S66 d78 G0 G1) -> (subst_etvar G T98 S66 (XS tm d78) (evar G0 T) (evar G1 (tsubstTy d78 S66 T)))
     | subst_etvar_there_etvar
         {d78 : (Trace ty)} {G0 : Env}
         {G1 : Env} {T : Ty} :
-        (subst_etvar G T98 S65 d78 G0 G1) -> (subst_etvar G T98 S65 (XS ty d78) (etvar G0 T) (etvar G1 (tsubstTy d78 S65 T))).
-  Lemma weaken_subst_etvar {G : Env} {T98 : Ty} {S65 : Ty} :
+        (subst_etvar G T98 S66 d78 G0 G1) -> (subst_etvar G T98 S66 (XS ty d78) (etvar G0 T) (etvar G1 (tsubstTy d78 S66 T))).
+  Lemma weaken_subst_etvar {G : Env} {T98 : Ty} {S66 : Ty} :
     (forall (G0 : Env) {d78 : (Trace ty)} {G1 : Env} {G2 : Env} ,
-      (subst_etvar G T98 S65 d78 G1 G2) -> (subst_etvar G T98 S65 (weakenTrace d78 (domainEnv G0)) (appendEnv G1 G0) (appendEnv G2 (tsubstEnv d78 S65 G0)))).
+      (subst_etvar G T98 S66 d78 G1 G2) -> (subst_etvar G T98 S66 (weakenTrace d78 (domainEnv G0)) (appendEnv G1 G0) (appendEnv G2 (tsubstEnv d78 S66 G0)))).
   Proof.
     needleGenericWeakenSubstEnv .
   Qed.
@@ -3176,9 +3236,9 @@ Section ContextStuff.
   Proof.
     needleGenericSubstEnvSubstHvl .
   Qed.
-  Lemma subst_etvar_substhvl_ty {G : Env} {S65 : Ty} {T99 : Ty} :
+  Lemma subst_etvar_substhvl_ty {G : Env} {S66 : Ty} {T99 : Ty} :
     (forall {d78 : (Trace ty)} {G0 : Env} {G1 : Env} ,
-      (subst_etvar G T99 S65 d78 G0 G1) -> (substhvl_ty (domainEnv G) d78 (domainEnv G0) (domainEnv G1))).
+      (subst_etvar G T99 S66 d78 G0 G1) -> (substhvl_ty (domainEnv G) d78 (domainEnv G0) (domainEnv G1))).
   Proof.
     needleGenericSubstEnvSubstHvl .
   Qed.
@@ -3213,6 +3273,50 @@ Proof.
 Qed.
  Hint Constructors wfLab wfPRec wfPat wfRec wfTRec wfTm wfTy : infra.
  Hint Constructors wfLab wfPRec wfPat wfRec wfTRec wfTm wfTy : wf.
+ Hint Extern 10 ((wfLab _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 10 ((wfPRec _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 10 ((wfPat _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 10 ((wfRec _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 10 ((wfTRec _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 10 ((wfTm _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 10 ((wfTy _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 2 ((wfLab _ _)) => match goal with
+  | H : (wfLab _ (L0)) |- _ => inversion H; subst; clear H
+  | H : (wfLab _ (LS _)) |- _ => inversion H; subst; clear H
+end : infra wf.
+ Hint Extern 2 ((wfTRec _ _)) => match goal with
+  | H : (wfTRec _ (tnil)) |- _ => inversion H; subst; clear H
+  | H : (wfTRec _ (tcons _ _ _)) |- _ => inversion H; subst; clear H
+end : infra wf.
+ Hint Extern 2 ((wfTy _ _)) => match goal with
+  | H : (wfTy _ (tvar _)) |- _ => inversion H; subst; clear H
+  | H : (wfTy _ (top)) |- _ => inversion H; subst; clear H
+  | H : (wfTy _ (tarr _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTy _ (tall _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTy _ (trec _)) |- _ => inversion H; subst; clear H
+end : infra wf.
+ Hint Extern 2 ((wfPat _ _)) => match goal with
+  | H : (wfPat _ (pvar _)) |- _ => inversion H; subst; clear H
+  | H : (wfPat _ (prec _)) |- _ => inversion H; subst; clear H
+end : infra wf.
+ Hint Extern 2 ((wfPRec _ _)) => match goal with
+  | H : (wfPRec _ (pnil)) |- _ => inversion H; subst; clear H
+  | H : (wfPRec _ (pcons _ _ _)) |- _ => inversion H; subst; clear H
+end : infra wf.
+ Hint Extern 2 ((wfTm _ _)) => match goal with
+  | H : (wfTm _ (var _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (abs _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (app _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (tabs _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (tapp _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (rec _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (prj _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (lett _ _ _)) |- _ => inversion H; subst; clear H
+end : infra wf.
+ Hint Extern 2 ((wfRec _ _)) => match goal with
+  | H : (wfRec _ (rnil)) |- _ => inversion H; subst; clear H
+  | H : (wfRec _ (rcons _ _ _)) |- _ => inversion H; subst; clear H
+end : infra wf.
  Hint Resolve lookup_evar_wf lookup_etvar_wf : infra.
  Hint Resolve lookup_evar_wf lookup_etvar_wf : wf.
  Hint Resolve lookup_evar_wfindex lookup_etvar_wfindex : infra.
@@ -3269,9 +3373,9 @@ Lemma subst_evar_lookup_etvar {G : Env} {T100 : Ty} {s24 : Tm} :
 Proof.
   needleGenericSubstEnvLookup .
 Qed.
-Lemma subst_etvar_lookup_evar {G : Env} {T100 : Ty} {S65 : Ty} (wf : (wfTy (domainEnv G) S65)) :
-  (forall {d78 : (Trace ty)} {G0 : Env} {G1 : Env} (sub : (subst_etvar G T100 S65 d78 G0 G1)) {x59 : (Index tm)} {T101 : Ty} ,
-    (lookup_evar G0 x59 T101) -> (lookup_evar G1 x59 (tsubstTy d78 S65 T101))).
+Lemma subst_etvar_lookup_evar {G : Env} {T100 : Ty} {S66 : Ty} (wf : (wfTy (domainEnv G) S66)) :
+  (forall {d78 : (Trace ty)} {G0 : Env} {G1 : Env} (sub : (subst_etvar G T100 S66 d78 G0 G1)) {x59 : (Index tm)} {T101 : Ty} ,
+    (lookup_evar G0 x59 T101) -> (lookup_evar G1 x59 (tsubstTy d78 S66 T101))).
 Proof.
   needleGenericSubstEnvLookup .
 Qed.
@@ -3280,47 +3384,47 @@ Qed.
  Hint Resolve subst_evar_lookup_etvar subst_etvar_lookup_evar : subst.
 Fixpoint size_Lab (l : Lab) {struct l} : nat :=
   match l with
-    | L0 => 1
-    | LS l0 => (plus 1 (size_Lab l0))
+    | (L0) => 1
+    | (LS l0) => (plus 1 (size_Lab l0))
   end.
 Fixpoint size_TRec (SS : TRec) {struct SS} : nat :=
   match SS with
-    | tnil => 1
-    | tcons l T TS => (plus 1 (plus (size_Lab l) (plus (size_Ty T) (size_TRec TS))))
+    | (tnil) => 1
+    | (tcons l T TS) => (plus 1 (plus (size_Lab l) (plus (size_Ty T) (size_TRec TS))))
   end
 with size_Ty (S0 : Ty) {struct S0} : nat :=
   match S0 with
-    | tvar X => 1
-    | top => 1
-    | tarr T1 T2 => (plus 1 (plus (size_Ty T1) (size_Ty T2)))
-    | tall T0 T3 => (plus 1 (plus (size_Ty T0) (size_Ty T3)))
-    | trec TS => (plus 1 (size_TRec TS))
+    | (tvar X) => 1
+    | (top) => 1
+    | (tarr T1 T2) => (plus 1 (plus (size_Ty T1) (size_Ty T2)))
+    | (tall T0 T3) => (plus 1 (plus (size_Ty T0) (size_Ty T3)))
+    | (trec TS) => (plus 1 (size_TRec TS))
   end.
 Fixpoint size_Pat (p : Pat) {struct p} : nat :=
   match p with
-    | pvar T => (plus 1 (size_Ty T))
-    | prec ps => (plus 1 (size_PRec ps))
+    | (pvar T) => (plus 1 (size_Ty T))
+    | (prec ps) => (plus 1 (size_PRec ps))
   end
 with size_PRec (ps : PRec) {struct ps} : nat :=
   match ps with
-    | pnil => 1
-    | pcons l p ps0 => (plus 1 (plus (size_Lab l) (plus (size_Pat p) (size_PRec ps0))))
+    | (pnil) => 1
+    | (pcons l p ps0) => (plus 1 (plus (size_Lab l) (plus (size_Pat p) (size_PRec ps0))))
   end.
 Fixpoint size_Tm (s : Tm) {struct s} : nat :=
   match s with
-    | var x => 1
-    | abs T t => (plus 1 (plus (size_Ty T) (size_Tm t)))
-    | app t1 t2 => (plus 1 (plus (size_Tm t1) (size_Tm t2)))
-    | tabs T0 t0 => (plus 1 (plus (size_Ty T0) (size_Tm t0)))
-    | tapp t3 T1 => (plus 1 (plus (size_Tm t3) (size_Ty T1)))
-    | rec ts => (plus 1 (size_Rec ts))
-    | prj t4 l => (plus 1 (plus (size_Tm t4) (size_Lab l)))
-    | lett p t5 t6 => (plus 1 (plus (size_Pat p) (plus (size_Tm t5) (size_Tm t6))))
+    | (var x) => 1
+    | (abs T t) => (plus 1 (plus (size_Ty T) (size_Tm t)))
+    | (app t1 t2) => (plus 1 (plus (size_Tm t1) (size_Tm t2)))
+    | (tabs T0 t0) => (plus 1 (plus (size_Ty T0) (size_Tm t0)))
+    | (tapp t3 T1) => (plus 1 (plus (size_Tm t3) (size_Ty T1)))
+    | (rec ts) => (plus 1 (size_Rec ts))
+    | (prj t4 l) => (plus 1 (plus (size_Tm t4) (size_Lab l)))
+    | (lett p t5 t6) => (plus 1 (plus (size_Pat p) (plus (size_Tm t5) (size_Tm t6))))
   end
 with size_Rec (ss : Rec) {struct ss} : nat :=
   match ss with
-    | rnil => 1
-    | rcons l t ts => (plus 1 (plus (size_Lab l) (plus (size_Tm t) (size_Rec ts))))
+    | (rnil) => 1
+    | (rcons l t ts) => (plus 1 (plus (size_Lab l) (plus (size_Tm t) (size_Rec ts))))
   end.
 Lemma tshift_size_TRec_Ty  :
   (forall (SS : TRec) (c13 : (Cutoff ty)) ,

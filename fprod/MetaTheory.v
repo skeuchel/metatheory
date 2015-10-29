@@ -1,66 +1,7 @@
+Require Export Coq.Program.Equality.
+Require Export Coq.Program.Tactics.
 Require Export DeclarationEvaluation.
 Require Export DeclarationTyping.
-
-(******************************************************************************)
-(* Missing infrastructure                                                     *)
-(******************************************************************************)
-
-Ltac rewrite_domainEnv_appendEnv :=
-  match goal with
-    | |- context[domainEnv (appendEnv _ _)] =>
-      autorewrite with interaction_domain_append
-    | H: context[domainEnv (appendEnv _ _)] |- _ =>
-      autorewrite with interaction_domain_append in H
-  end.
-
-Hint Extern 10 (wfTy _ _) => rewrite_domainEnv_appendEnv : wf infra.
-Hint Extern 10 (wfindex _ _) => rewrite_domainEnv_appendEnv : wf infra.
-
-Fixpoint subhvl_tm (h: Hvl) : Prop :=
-  match h with
-    | H0 => True
-    | HS a h =>
-      match a with
-        | tm => subhvl_tm h
-        | ty => False
-      end
-  end.
-
-Lemma subhvl_tm_append {h1 h2}
-      (subh1: subhvl_tm h1)
-      (subh2: subhvl_tm h2) :
-  subhvl_tm (appendHvl h1 h2).
-Proof.
-  induction h2 as [|[]]; simpl; eauto.
-Qed.
-Hint Resolve subhvl_tm_append : infra wf.
-
-Lemma Pat_bindPat_subhvl_tm :
-  ∀ p, subhvl_tm (bindPat p).
-Proof.
-  induction p; simpl; auto using subhvl_tm_append.
-Qed.
-Hint Resolve Pat_bindPat_subhvl_tm : infra wf.
-
-Lemma wfTy_strengthen_subhvl_tm1 {h1} h2 :
-  ∀ T,
-    subhvl_tm h2 →
-    wfTy (appendHvl h1 h2) (weakenTy T h2) →
-    wfTy h1 T.
-Proof.
-  induction h2 as [|[]]; intros; simpl; eauto with infra; intuition.
-Qed.
-
-Hint Extern 2 (wfTy _ _) =>
-  match goal with
-    | H: wfTy _ (tvar _)    |- _ => inversion H; subst; clear H
-    | H: wfTy _ (tarr _ _)  |- _ => inversion H; subst; clear H
-    | H: wfTy _ (tall _)    |- _ => inversion H; subst; clear H
-    | H: wfTy _ (tprod _ _) |- _ => inversion H; subst; clear H
-    | H: wfTy
-           (appendHvl _ ?h)
-           (weakenTy _ ?h)  |- _ => eapply wfTy_strengthen_subhvl_tm1 in H
-  end : wf infra.
 
 (******************************************************************************)
 (* Weakening lemmas                                                           *)
@@ -76,7 +17,6 @@ Hint Resolve PTyping_domainEnv_subhvl_tm : infra shift subst wf.
 Lemma PTyping_bindPat_domainEnv {Γ p T Δ} :
   PTyping Γ p T Δ → bindPat p = domainEnv Δ.
 Proof.
-
   induction 1; isimpl; try congruence; eauto.
 Qed.
 

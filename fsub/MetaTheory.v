@@ -1,46 +1,8 @@
 Require Import Coq.omega.Omega.
+Require Import Coq.Program.Equality.
+Require Import Coq.Program.Tactics.
 Require Export DeclarationEvaluation.
 Require Export DeclarationTyping.
-
-(******************************************************************************)
-(* Missing infrastructure                                                     *)
-(******************************************************************************)
-
-Ltac rewrite_domainEnv_appendEnv :=
-  match goal with
-    | |- context[domainEnv (appendEnv _ _)] =>
-      autorewrite with interaction_domain_append
-    | H: context[domainEnv (appendEnv _ _)] |- _ =>
-      autorewrite with interaction_domain_append in H
-  end.
-
-Hint Extern 10 (wfTy _ _) => rewrite_domainEnv_appendEnv.
-Hint Extern 10 (wfindex _ _) => rewrite_domainEnv_appendEnv.
-
-Hint Rewrite domainEnv_tshiftEnv : interaction.
-Hint Rewrite tshiftEnv_appendEnv : interaction.
-
-(* forward reasoning about inversion *)
-Hint Extern 2 (wfTy _ _) =>
-  match goal with
-    | H: wfTy _ (tvar _)    |- _ => inversion H; subst; clear H
-    | H: wfTy _ (top)       |- _ => inversion H; subst; clear H
-    | H: wfTy _ (tarr _ _)  |- _ => inversion H; subst; clear H
-    | H: wfTy _ (tall _ _)  |- _ => inversion H; subst; clear H
-  end : wf infra.
-
-(* forward reasoning *)
-Hint Extern 10 (wfTy _ _) =>
-  match goal with
-    | H: lookup_etvar _ _ _  |- _ => apply lookup_etvar_wf in H
-    | H: lookup_evar _ _ _   |- _ => apply lookup_evar_wf in H
-  end : infra shift wf.
-
-Hint Extern 10 (wfindex _ _) =>
-  match goal with
-    | H: lookup_etvar _ _ _  |- _ => apply lookup_etvar_wfindex in H
-    | H: lookup_evar _ _ _   |- _ => apply lookup_evar_wfindex in H
-  end : infra shift wf.
 
 (******************************************************************************)
 (* Weakening lemmas                                                           *)
@@ -224,7 +186,7 @@ Lemma subst_etvar_lookup_etvar {Γ B S X Γ1 Γ2} (wS : wfTy (domainEnv Γ) S)
   ∀ Y U, lookup_etvar Γ1 Y U → Sub Γ2 (tsubstIndex X S Y) (tsubstTy X S U).
 Proof.
   induction esub; inversion 1; isimpl;
-    try refine (SA_Trans_TVar _ (sub_refl _)); eauto with infra.
+    try refine (SA_Trans_TVar _ _ (sub_refl _)); eauto with infra.
 Qed.
 
 Lemma subst_etvar_sub {Γ B Γ1 S U V} (wS : wfTy (domainEnv Γ) S)

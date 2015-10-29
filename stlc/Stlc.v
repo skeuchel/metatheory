@@ -1,6 +1,5 @@
-Require Export Coq.Program.Equality.
-Require Export Coq.Program.Tactics.
-Require Export Coq.Unicode.Utf8.
+Require Import Coq.Program.Equality.
+Require Import Coq.Program.Tactics.
 Require Export Needle.
 Section Namespace.
   Inductive Namespace : Type :=
@@ -21,8 +20,8 @@ Section HVarlist.
   
   Fixpoint appendHvl (k : Hvl) (k0 : Hvl) {struct k0} : Hvl :=
     match k0 with
-      | H0 => k
-      | HS a k0 => (HS a (appendHvl k k0))
+      | (H0) => k
+      | (HS a k0) => (HS a (appendHvl k k0))
     end.
   
   Lemma appendHvl_assoc  :
@@ -52,9 +51,9 @@ Section Index.
   
   Fixpoint weakenIndextm (x : (Index tm)) (k : Hvl) {struct k} : (Index tm) :=
     match k with
-      | H0 => x
-      | HS a k => match a with
-        | tm => (IS (weakenIndextm x k))
+      | (H0) => x
+      | (HS a k) => match a with
+        | (tm) => (IS (weakenIndextm x k))
       end
     end.
   Lemma weakenIndextm_append  :
@@ -93,9 +92,9 @@ Section Shift.
   Global Arguments CS {a} _ .
   Fixpoint weakenCutofftm (c : (Cutoff tm)) (k : Hvl) {struct k} : (Cutoff tm) :=
     match k with
-      | H0 => c
-      | HS a k => match a with
-        | tm => (CS (weakenCutofftm c k))
+      | (H0) => c
+      | (HS a k) => match a with
+        | (tm) => (CS (weakenCutofftm c k))
       end
     end.
   
@@ -108,31 +107,31 @@ Section Shift.
   Qed.
   Fixpoint shiftIndex (c : (Cutoff tm)) (x : (Index tm)) {struct c} : (Index tm) :=
     match c with
-      | C0 => (IS x)
-      | CS c => match x with
-        | I0 => I0
-        | IS x => (IS (shiftIndex c x))
+      | (C0) => (IS x)
+      | (CS c) => match x with
+        | (I0) => I0
+        | (IS x) => (IS (shiftIndex c x))
       end
     end.
   Fixpoint shiftTm (c : (Cutoff tm)) (s : Tm) {struct s} : Tm :=
     match s with
-      | var x => (var (shiftIndex c x))
-      | tt => (tt)
-      | abs T t => (abs T (shiftTm (weakenCutofftm c (appendHvl (HS tm H0) H0)) t))
-      | app t1 t2 => (app (shiftTm (weakenCutofftm c H0) t1) (shiftTm (weakenCutofftm c H0) t2))
+      | (var x) => (var (shiftIndex c x))
+      | (tt) => (tt)
+      | (abs T t) => (abs T (shiftTm (weakenCutofftm c (appendHvl (HS tm H0) H0)) t))
+      | (app t1 t2) => (app (shiftTm (weakenCutofftm c H0) t1) (shiftTm (weakenCutofftm c H0) t2))
     end.
 End Shift.
 
 Section Weaken.
   Fixpoint weakenTy (S0 : Ty) (k : Hvl) {struct k} : Ty :=
     match k with
-      | H0 => S0
-      | HS tm k => (weakenTy S0 k)
+      | (H0) => S0
+      | (HS tm k) => (weakenTy S0 k)
     end.
   Fixpoint weakenTm (s : Tm) (k : Hvl) {struct k} : Tm :=
     match k with
-      | H0 => s
-      | HS tm k => (shiftTm C0 (weakenTm s k))
+      | (H0) => s
+      | (HS tm k) => (shiftTm C0 (weakenTm s k))
     end.
 End Weaken.
 
@@ -146,8 +145,8 @@ Section Subst.
   Global Arguments XS [a] b _ .
   Fixpoint weakenTrace {a : Namespace} (x : (Trace a)) (k : Hvl) {struct k} : (Trace a) :=
     match k with
-      | H0 => x
-      | HS b k => (XS b (weakenTrace x k))
+      | (H0) => x
+      | (HS b k) => (XS b (weakenTrace x k))
     end.
   Lemma weakenTrace_append (a : Namespace) :
     (forall (x : (Trace a)) (k : Hvl) (k0 : Hvl) ,
@@ -158,21 +157,21 @@ Section Subst.
   Qed.
   Fixpoint substIndex (d : (Trace tm)) (s : Tm) (x : (Index tm)) {struct d} : Tm :=
     match d with
-      | X0 => match x with
-        | I0 => s
-        | IS x => (var x)
+      | (X0) => match x with
+        | (I0) => s
+        | (IS x) => (var x)
       end
-      | XS tm d => match x with
-        | I0 => (var I0)
-        | IS x => (shiftTm C0 (substIndex d s x))
+      | (XS tm d) => match x with
+        | (I0) => (var I0)
+        | (IS x) => (shiftTm C0 (substIndex d s x))
       end
     end.
   Fixpoint substTm (d : (Trace tm)) (s : Tm) (s0 : Tm) {struct s0} : Tm :=
     match s0 with
-      | var x => (substIndex d s x)
-      | tt => (tt)
-      | abs T t => (abs T (substTm (XS tm d) s t))
-      | app t1 t2 => (app (substTm d s t1) (substTm d s t2))
+      | (var x) => (substIndex d s x)
+      | (tt) => (tt)
+      | (abs T t) => (abs T (substTm (XS tm d) s t))
+      | (app t1 t2) => (app (substTm d s t1) (substTm d s t2))
     end.
 End Subst.
 
@@ -363,13 +362,13 @@ End SubstSubstInteraction.
 Section WellFormed.
   Fixpoint wfindex {a : Namespace} (k7 : Hvl) (i : (Index a)) {struct k7} : Prop :=
     match k7 with
-      | H0 => False
-      | HS b k7 => match (eq_namespace_dec a b) with
-        | left e => match i with
-          | I0 => True
-          | IS i => (wfindex k7 i)
+      | (H0) => False
+      | (HS b k7) => match (eq_namespace_dec a b) with
+        | (left e) => match i with
+          | (I0) => True
+          | (IS i) => (wfindex k7 i)
         end
-        | right n => (wfindex k7 i)
+        | (right n) => (wfindex k7 i)
       end
     end.
   Inductive wfTy (k7 : Hvl) : Ty -> Prop :=
@@ -513,13 +512,13 @@ Section Context.
     | evar (G : Env) (T : Ty).
   Fixpoint appendEnv (G : Env) (G0 : Env) : Env :=
     match G0 with
-      | empty => G
-      | evar G1 T => (evar (appendEnv G G1) T)
+      | (empty) => G
+      | (evar G1 T) => (evar (appendEnv G G1) T)
     end.
   Fixpoint domainEnv (G : Env) : Hvl :=
     match G with
-      | empty => H0
-      | evar G0 T => (HS tm (domainEnv G0))
+      | (empty) => H0
+      | (evar G0 T) => (HS tm (domainEnv G0))
     end.
   Lemma appendEnv_assoc  :
     (forall (G : Env) (G0 : Env) (G1 : Env) ,
@@ -537,13 +536,13 @@ Section Context.
   Qed.
   Fixpoint shiftEnv (c2 : (Cutoff tm)) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (shiftEnv c2 G0) T)
+      | (empty) => empty
+      | (evar G0 T) => (evar (shiftEnv c2 G0) T)
     end.
   Fixpoint substEnv (d4 : (Trace tm)) (s7 : Tm) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (substEnv d4 s7 G0) T)
+      | (empty) => empty
+      | (evar G0 T) => (evar (substEnv d4 s7 G0) T)
     end.
   Lemma domainEnv_shiftEnv  :
     (forall (c2 : (Cutoff tm)) (G : Env) ,
@@ -681,6 +680,18 @@ Proof.
 Qed.
  Hint Constructors wfTm wfTy : infra.
  Hint Constructors wfTm wfTy : wf.
+ Hint Extern 10 ((wfTm _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 10 ((wfTy _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 2 ((wfTy _ _)) => match goal with
+  | H : (wfTy _ (tunit)) |- _ => inversion H; subst; clear H
+  | H : (wfTy _ (tarr _ _)) |- _ => inversion H; subst; clear H
+end : infra wf.
+ Hint Extern 2 ((wfTm _ _)) => match goal with
+  | H : (wfTm _ (var _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (tt)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (abs _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (app _ _)) |- _ => inversion H; subst; clear H
+end : infra wf.
  Hint Resolve lookup_evar_wf : infra.
  Hint Resolve lookup_evar_wf : wf.
  Hint Resolve lookup_evar_wfindex : infra.
@@ -715,15 +726,15 @@ Qed.
  Hint Resolve shift_evar_lookup_evar : shift.
 Fixpoint size_Ty (S0 : Ty) {struct S0} : nat :=
   match S0 with
-    | tunit => 1
-    | tarr T1 T2 => (plus 1 (plus (size_Ty T1) (size_Ty T2)))
+    | (tunit) => 1
+    | (tarr T1 T2) => (plus 1 (plus (size_Ty T1) (size_Ty T2)))
   end.
 Fixpoint size_Tm (s : Tm) {struct s} : nat :=
   match s with
-    | var x => 1
-    | tt => 1
-    | abs T t => (plus 1 (plus (size_Ty T) (size_Tm t)))
-    | app t1 t2 => (plus 1 (plus (size_Tm t1) (size_Tm t2)))
+    | (var x) => 1
+    | (tt) => 1
+    | (abs T t) => (plus 1 (plus (size_Ty T) (size_Tm t)))
+    | (app t1 t2) => (plus 1 (plus (size_Tm t1) (size_Tm t2)))
   end.
 Lemma shift_size_Tm  :
   (forall (s7 : Tm) (c1 : (Cutoff tm)) ,

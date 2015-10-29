@@ -1,5 +1,5 @@
+Require Export Coq.Unicode.Utf8.
 Require Export Stlc.
-Set Implicit Arguments.
 
 (*************************************************************************)
 (* Reduction relation                                                    *)

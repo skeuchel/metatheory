@@ -1,3 +1,5 @@
+Require Import Coq.Program.Equality.
+Require Import Coq.Program.Tactics.
 Require Export MetaTheory.
 Set Implicit Arguments.
 

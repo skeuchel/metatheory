@@ -1,5 +1,4 @@
 Require Export DeclarationTyping.
-Set Implicit Arguments.
 
 (*************************************************************************)
 (* Reduction relation                                                    *)

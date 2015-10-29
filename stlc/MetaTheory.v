@@ -1,6 +1,6 @@
+Require Import Coq.Program.Equality.
 Require Export DeclarationEvaluation.
 Require Export DeclarationTyping.
-Set Implicit Arguments.
 
 (******************************************************************************)
 (* Weakening lemmas                                                           *)

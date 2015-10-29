@@ -1,6 +1,5 @@
-Require Export Coq.Program.Equality.
-Require Export Coq.Program.Tactics.
-Require Export Coq.Unicode.Utf8.
+Require Import Coq.Program.Equality.
+Require Import Coq.Program.Tactics.
 Require Export Needle.
 Section Namespace.
   Inductive Namespace : Type :=
@@ -22,8 +21,8 @@ Section HVarlist.
   
   Fixpoint appendHvl (k : Hvl) (k0 : Hvl) {struct k0} : Hvl :=
     match k0 with
-      | H0 => k
-      | HS a k0 => (HS a (appendHvl k k0))
+      | (H0) => k
+      | (HS a k0) => (HS a (appendHvl k k0))
     end.
   
   Lemma appendHvl_assoc  :
@@ -53,17 +52,17 @@ Section Index.
   
   Fixpoint weakenIndextm (x : (Index tm)) (k : Hvl) {struct k} : (Index tm) :=
     match k with
-      | H0 => x
-      | HS a k => match a with
-        | tm => (IS (weakenIndextm x k))
+      | (H0) => x
+      | (HS a k) => match a with
+        | (tm) => (IS (weakenIndextm x k))
         | _ => (weakenIndextm x k)
       end
     end.
   Fixpoint weakenIndexty (X : (Index ty)) (k : Hvl) {struct k} : (Index ty) :=
     match k with
-      | H0 => X
-      | HS a k => match a with
-        | ty => (IS (weakenIndexty X k))
+      | (H0) => X
+      | (HS a k) => match a with
+        | (ty) => (IS (weakenIndexty X k))
         | _ => (weakenIndexty X k)
       end
     end.
@@ -111,8 +110,8 @@ End Terms.
 Section Functions.
   Fixpoint bindPat (p : Pat) {struct p} : Hvl :=
     match p with
-      | pvar T => (appendHvl (HS tm H0) H0)
-      | pprod p1 p2 => (appendHvl (bindPat p1) (appendHvl (bindPat p2) H0))
+      | (pvar T) => (appendHvl (HS tm H0) H0)
+      | (pprod p1 p2) => (appendHvl (bindPat p1) (appendHvl (bindPat p2) H0))
     end.
   Scheme ind_bindPat_Pat := Induction for Pat Sort Prop.
 End Functions.
@@ -126,17 +125,17 @@ Section Shift.
   Global Arguments CS {a} _ .
   Fixpoint weakenCutofftm (c : (Cutoff tm)) (k : Hvl) {struct k} : (Cutoff tm) :=
     match k with
-      | H0 => c
-      | HS a k => match a with
-        | tm => (CS (weakenCutofftm c k))
+      | (H0) => c
+      | (HS a k) => match a with
+        | (tm) => (CS (weakenCutofftm c k))
         | _ => (weakenCutofftm c k)
       end
     end.
   Fixpoint weakenCutoffty (c : (Cutoff ty)) (k : Hvl) {struct k} : (Cutoff ty) :=
     match k with
-      | H0 => c
-      | HS a k => match a with
-        | ty => (CS (weakenCutoffty c k))
+      | (H0) => c
+      | (HS a k) => match a with
+        | (ty) => (CS (weakenCutoffty c k))
         | _ => (weakenCutoffty c k)
       end
     end.
@@ -157,72 +156,72 @@ Section Shift.
   Qed.
   Fixpoint shiftIndex (c : (Cutoff tm)) (x : (Index tm)) {struct c} : (Index tm) :=
     match c with
-      | C0 => (IS x)
-      | CS c => match x with
-        | I0 => I0
-        | IS x => (IS (shiftIndex c x))
+      | (C0) => (IS x)
+      | (CS c) => match x with
+        | (I0) => I0
+        | (IS x) => (IS (shiftIndex c x))
       end
     end.
   Fixpoint tshiftIndex (c : (Cutoff ty)) (X : (Index ty)) {struct c} : (Index ty) :=
     match c with
-      | C0 => (IS X)
-      | CS c => match X with
-        | I0 => I0
-        | IS X => (IS (tshiftIndex c X))
+      | (C0) => (IS X)
+      | (CS c) => match X with
+        | (I0) => I0
+        | (IS X) => (IS (tshiftIndex c X))
       end
     end.
   Fixpoint tshiftTy (c : (Cutoff ty)) (S0 : Ty) {struct S0} : Ty :=
     match S0 with
-      | tvar X => (tvar (tshiftIndex c X))
-      | tarr T1 T2 => (tarr (tshiftTy (weakenCutoffty c H0) T1) (tshiftTy (weakenCutoffty c H0) T2))
-      | tall T => (tall (tshiftTy (weakenCutoffty c (appendHvl (HS ty H0) H0)) T))
-      | tprod T0 T3 => (tprod (tshiftTy (weakenCutoffty c H0) T0) (tshiftTy (weakenCutoffty c H0) T3))
+      | (tvar X) => (tvar (tshiftIndex c X))
+      | (tarr T1 T2) => (tarr (tshiftTy (weakenCutoffty c H0) T1) (tshiftTy (weakenCutoffty c H0) T2))
+      | (tall T) => (tall (tshiftTy (weakenCutoffty c (appendHvl (HS ty H0) H0)) T))
+      | (tprod T0 T3) => (tprod (tshiftTy (weakenCutoffty c H0) T0) (tshiftTy (weakenCutoffty c H0) T3))
     end.
   Fixpoint tshiftPat (c : (Cutoff ty)) (p : Pat) {struct p} : Pat :=
     match p with
-      | pvar T => (pvar (tshiftTy (weakenCutoffty c H0) T))
-      | pprod p1 p2 => (pprod (tshiftPat (weakenCutoffty c H0) p1) (tshiftPat (weakenCutoffty c H0) p2))
+      | (pvar T) => (pvar (tshiftTy (weakenCutoffty c H0) T))
+      | (pprod p1 p2) => (pprod (tshiftPat (weakenCutoffty c H0) p1) (tshiftPat (weakenCutoffty c H0) p2))
     end.
   Fixpoint shiftTm (c : (Cutoff tm)) (s : Tm) {struct s} : Tm :=
     match s with
-      | var x => (var (shiftIndex c x))
-      | abs T t => (abs T (shiftTm (weakenCutofftm c (appendHvl (HS tm H0) H0)) t))
-      | app t1 t2 => (app (shiftTm (weakenCutofftm c H0) t1) (shiftTm (weakenCutofftm c H0) t2))
-      | tabs t0 => (tabs (shiftTm (weakenCutofftm c (appendHvl (HS ty H0) H0)) t0))
-      | tapp t3 T0 => (tapp (shiftTm (weakenCutofftm c H0) t3) T0)
-      | prod t4 t5 => (prod (shiftTm (weakenCutofftm c H0) t4) (shiftTm (weakenCutofftm c H0) t5))
-      | lett p t6 t7 => (lett p (shiftTm (weakenCutofftm c H0) t6) (shiftTm (weakenCutofftm c (appendHvl (bindPat p) H0)) t7))
+      | (var x) => (var (shiftIndex c x))
+      | (abs T t) => (abs T (shiftTm (weakenCutofftm c (appendHvl (HS tm H0) H0)) t))
+      | (app t1 t2) => (app (shiftTm (weakenCutofftm c H0) t1) (shiftTm (weakenCutofftm c H0) t2))
+      | (tabs t0) => (tabs (shiftTm (weakenCutofftm c (appendHvl (HS ty H0) H0)) t0))
+      | (tapp t3 T0) => (tapp (shiftTm (weakenCutofftm c H0) t3) T0)
+      | (prod t4 t5) => (prod (shiftTm (weakenCutofftm c H0) t4) (shiftTm (weakenCutofftm c H0) t5))
+      | (lett p t6 t7) => (lett p (shiftTm (weakenCutofftm c H0) t6) (shiftTm (weakenCutofftm c (appendHvl (bindPat p) H0)) t7))
     end.
   Fixpoint tshiftTm (c : (Cutoff ty)) (s : Tm) {struct s} : Tm :=
     match s with
-      | var x => (var x)
-      | abs T t => (abs (tshiftTy (weakenCutoffty c H0) T) (tshiftTm (weakenCutoffty c (appendHvl (HS tm H0) H0)) t))
-      | app t1 t2 => (app (tshiftTm (weakenCutoffty c H0) t1) (tshiftTm (weakenCutoffty c H0) t2))
-      | tabs t0 => (tabs (tshiftTm (weakenCutoffty c (appendHvl (HS ty H0) H0)) t0))
-      | tapp t3 T0 => (tapp (tshiftTm (weakenCutoffty c H0) t3) (tshiftTy (weakenCutoffty c H0) T0))
-      | prod t4 t5 => (prod (tshiftTm (weakenCutoffty c H0) t4) (tshiftTm (weakenCutoffty c H0) t5))
-      | lett p t6 t7 => (lett (tshiftPat (weakenCutoffty c H0) p) (tshiftTm (weakenCutoffty c H0) t6) (tshiftTm (weakenCutoffty c (appendHvl (bindPat p) H0)) t7))
+      | (var x) => (var x)
+      | (abs T t) => (abs (tshiftTy (weakenCutoffty c H0) T) (tshiftTm (weakenCutoffty c (appendHvl (HS tm H0) H0)) t))
+      | (app t1 t2) => (app (tshiftTm (weakenCutoffty c H0) t1) (tshiftTm (weakenCutoffty c H0) t2))
+      | (tabs t0) => (tabs (tshiftTm (weakenCutoffty c (appendHvl (HS ty H0) H0)) t0))
+      | (tapp t3 T0) => (tapp (tshiftTm (weakenCutoffty c H0) t3) (tshiftTy (weakenCutoffty c H0) T0))
+      | (prod t4 t5) => (prod (tshiftTm (weakenCutoffty c H0) t4) (tshiftTm (weakenCutoffty c H0) t5))
+      | (lett p t6 t7) => (lett (tshiftPat (weakenCutoffty c H0) p) (tshiftTm (weakenCutoffty c H0) t6) (tshiftTm (weakenCutoffty c (appendHvl (bindPat p) H0)) t7))
     end.
 End Shift.
 
 Section Weaken.
   Fixpoint weakenTy (S0 : Ty) (k : Hvl) {struct k} : Ty :=
     match k with
-      | H0 => S0
-      | HS tm k => (weakenTy S0 k)
-      | HS ty k => (tshiftTy C0 (weakenTy S0 k))
+      | (H0) => S0
+      | (HS tm k) => (weakenTy S0 k)
+      | (HS ty k) => (tshiftTy C0 (weakenTy S0 k))
     end.
   Fixpoint weakenPat (p : Pat) (k : Hvl) {struct k} : Pat :=
     match k with
-      | H0 => p
-      | HS tm k => (weakenPat p k)
-      | HS ty k => (tshiftPat C0 (weakenPat p k))
+      | (H0) => p
+      | (HS tm k) => (weakenPat p k)
+      | (HS ty k) => (tshiftPat C0 (weakenPat p k))
     end.
   Fixpoint weakenTm (s : Tm) (k : Hvl) {struct k} : Tm :=
     match k with
-      | H0 => s
-      | HS tm k => (shiftTm C0 (weakenTm s k))
-      | HS ty k => (tshiftTm C0 (weakenTm s k))
+      | (H0) => s
+      | (HS tm k) => (shiftTm C0 (weakenTm s k))
+      | (HS ty k) => (tshiftTm C0 (weakenTm s k))
     end.
 End Weaken.
 
@@ -236,8 +235,8 @@ Section Subst.
   Global Arguments XS [a] b _ .
   Fixpoint weakenTrace {a : Namespace} (x : (Trace a)) (k : Hvl) {struct k} : (Trace a) :=
     match k with
-      | H0 => x
-      | HS b k => (XS b (weakenTrace x k))
+      | (H0) => x
+      | (HS b k) => (XS b (weakenTrace x k))
     end.
   Lemma weakenTrace_append (a : Namespace) :
     (forall (x : (Trace a)) (k : Hvl) (k0 : Hvl) ,
@@ -248,59 +247,59 @@ Section Subst.
   Qed.
   Fixpoint substIndex (d : (Trace tm)) (s : Tm) (x : (Index tm)) {struct d} : Tm :=
     match d with
-      | X0 => match x with
-        | I0 => s
-        | IS x => (var x)
+      | (X0) => match x with
+        | (I0) => s
+        | (IS x) => (var x)
       end
-      | XS tm d => match x with
-        | I0 => (var I0)
-        | IS x => (shiftTm C0 (substIndex d s x))
+      | (XS tm d) => match x with
+        | (I0) => (var I0)
+        | (IS x) => (shiftTm C0 (substIndex d s x))
       end
-      | XS ty d => (tshiftTm C0 (substIndex d s x))
+      | (XS ty d) => (tshiftTm C0 (substIndex d s x))
     end.
   Fixpoint tsubstIndex (d : (Trace ty)) (S0 : Ty) (X : (Index ty)) {struct d} : Ty :=
     match d with
-      | X0 => match X with
-        | I0 => S0
-        | IS X => (tvar X)
+      | (X0) => match X with
+        | (I0) => S0
+        | (IS X) => (tvar X)
       end
-      | XS tm d => (tsubstIndex d S0 X)
-      | XS ty d => match X with
-        | I0 => (tvar I0)
-        | IS X => (tshiftTy C0 (tsubstIndex d S0 X))
+      | (XS tm d) => (tsubstIndex d S0 X)
+      | (XS ty d) => match X with
+        | (I0) => (tvar I0)
+        | (IS X) => (tshiftTy C0 (tsubstIndex d S0 X))
       end
     end.
   Fixpoint tsubstTy (d : (Trace ty)) (S0 : Ty) (S1 : Ty) {struct S1} : Ty :=
     match S1 with
-      | tvar X => (tsubstIndex d S0 X)
-      | tarr T1 T2 => (tarr (tsubstTy d S0 T1) (tsubstTy d S0 T2))
-      | tall T => (tall (tsubstTy (XS ty d) S0 T))
-      | tprod T0 T3 => (tprod (tsubstTy d S0 T0) (tsubstTy d S0 T3))
+      | (tvar X) => (tsubstIndex d S0 X)
+      | (tarr T1 T2) => (tarr (tsubstTy d S0 T1) (tsubstTy d S0 T2))
+      | (tall T) => (tall (tsubstTy (XS ty d) S0 T))
+      | (tprod T0 T3) => (tprod (tsubstTy d S0 T0) (tsubstTy d S0 T3))
     end.
   Fixpoint tsubstPat (d : (Trace ty)) (S0 : Ty) (p : Pat) {struct p} : Pat :=
     match p with
-      | pvar T => (pvar (tsubstTy d S0 T))
-      | pprod p1 p2 => (pprod (tsubstPat d S0 p1) (tsubstPat d S0 p2))
+      | (pvar T) => (pvar (tsubstTy d S0 T))
+      | (pprod p1 p2) => (pprod (tsubstPat d S0 p1) (tsubstPat d S0 p2))
     end.
   Fixpoint substTm (d : (Trace tm)) (s : Tm) (s0 : Tm) {struct s0} : Tm :=
     match s0 with
-      | var x => (substIndex d s x)
-      | abs T t => (abs T (substTm (XS tm d) s t))
-      | app t1 t2 => (app (substTm d s t1) (substTm d s t2))
-      | tabs t0 => (tabs (substTm (XS ty d) s t0))
-      | tapp t3 T0 => (tapp (substTm d s t3) T0)
-      | prod t4 t5 => (prod (substTm d s t4) (substTm d s t5))
-      | lett p t6 t7 => (lett p (substTm d s t6) (substTm (weakenTrace d (bindPat p)) s t7))
+      | (var x) => (substIndex d s x)
+      | (abs T t) => (abs T (substTm (XS tm d) s t))
+      | (app t1 t2) => (app (substTm d s t1) (substTm d s t2))
+      | (tabs t0) => (tabs (substTm (XS ty d) s t0))
+      | (tapp t3 T0) => (tapp (substTm d s t3) T0)
+      | (prod t4 t5) => (prod (substTm d s t4) (substTm d s t5))
+      | (lett p t6 t7) => (lett p (substTm d s t6) (substTm (weakenTrace d (bindPat p)) s t7))
     end.
   Fixpoint tsubstTm (d : (Trace ty)) (S0 : Ty) (s : Tm) {struct s} : Tm :=
     match s with
-      | var x => (var x)
-      | abs T t => (abs (tsubstTy d S0 T) (tsubstTm (XS tm d) S0 t))
-      | app t1 t2 => (app (tsubstTm d S0 t1) (tsubstTm d S0 t2))
-      | tabs t0 => (tabs (tsubstTm (XS ty d) S0 t0))
-      | tapp t3 T0 => (tapp (tsubstTm d S0 t3) (tsubstTy d S0 T0))
-      | prod t4 t5 => (prod (tsubstTm d S0 t4) (tsubstTm d S0 t5))
-      | lett p t6 t7 => (lett (tsubstPat d S0 p) (tsubstTm d S0 t6) (tsubstTm (weakenTrace d (bindPat p)) S0 t7))
+      | (var x) => (var x)
+      | (abs T t) => (abs (tsubstTy d S0 T) (tsubstTm (XS tm d) S0 t))
+      | (app t1 t2) => (app (tsubstTm d S0 t1) (tsubstTm d S0 t2))
+      | (tabs t0) => (tabs (tsubstTm (XS ty d) S0 t0))
+      | (tapp t3 T0) => (tapp (tsubstTm d S0 t3) (tsubstTy d S0 T0))
+      | (prod t4 t5) => (prod (tsubstTm d S0 t4) (tsubstTm d S0 t5))
+      | (lett p t6 t7) => (lett (tsubstPat d S0 p) (tsubstTm d S0 t6) (tsubstTm (weakenTrace d (bindPat p)) S0 t7))
     end.
 End Subst.
 
@@ -1017,13 +1016,13 @@ End SubstSubstInteraction.
 Section WellFormed.
   Fixpoint wfindex {a : Namespace} (k62 : Hvl) (i : (Index a)) {struct k62} : Prop :=
     match k62 with
-      | H0 => False
-      | HS b k62 => match (eq_namespace_dec a b) with
-        | left e => match i with
-          | I0 => True
-          | IS i => (wfindex k62 i)
+      | (H0) => False
+      | (HS b k62) => match (eq_namespace_dec a b) with
+        | (left e) => match i with
+          | (I0) => True
+          | (IS i) => (wfindex k62 i)
         end
-        | right n => (wfindex k62 i)
+        | (right n) => (wfindex k62 i)
       end
     end.
   Inductive wfTy (k62 : Hvl) : Ty -> Prop :=
@@ -1271,98 +1270,98 @@ Section SubstWellFormed.
   Proof.
     needleGenericWeakenSubstHvl .
   Qed.
-  Lemma substhvl_tm_wfindex_tm {k62 : Hvl} {s18 : Tm} (wft : (wfTm k62 s18)) :
-    (forall {d50 : (Trace tm)} {k63 : Hvl} {k64 : Hvl} ,
-      (substhvl_tm k62 d50 k63 k64) -> (forall {x59 : (Index tm)} ,
-        (wfindex k63 x59) -> (wfTm k64 (substIndex d50 s18 x59)))).
+  Lemma substhvl_tm_wfindex_tm {k66 : Hvl} {s18 : Tm} (wft : (wfTm k66 s18)) :
+    (forall {d50 : (Trace tm)} {k67 : Hvl} {k68 : Hvl} ,
+      (substhvl_tm k66 d50 k67 k68) -> (forall {x59 : (Index tm)} ,
+        (wfindex k67 x59) -> (wfTm k68 (substIndex d50 s18 x59)))).
   Proof.
     needleGenericSubstHvlWfIndexHom .
   Qed.
-  Lemma substhvl_ty_wfindex_ty {k62 : Hvl} {S43 : Ty} (wft : (wfTy k62 S43)) :
-    (forall {d50 : (Trace ty)} {k63 : Hvl} {k64 : Hvl} ,
-      (substhvl_ty k62 d50 k63 k64) -> (forall {X43 : (Index ty)} ,
-        (wfindex k63 X43) -> (wfTy k64 (tsubstIndex d50 S43 X43)))).
+  Lemma substhvl_ty_wfindex_ty {k66 : Hvl} {S44 : Ty} (wft : (wfTy k66 S44)) :
+    (forall {d50 : (Trace ty)} {k67 : Hvl} {k68 : Hvl} ,
+      (substhvl_ty k66 d50 k67 k68) -> (forall {X43 : (Index ty)} ,
+        (wfindex k67 X43) -> (wfTy k68 (tsubstIndex d50 S44 X43)))).
   Proof.
     needleGenericSubstHvlWfIndexHom .
   Qed.
-  Lemma substhvl_tm_wfindex_ty {k62 : Hvl} :
-    (forall {d50 : (Trace tm)} {k63 : Hvl} {k64 : Hvl} ,
-      (substhvl_tm k62 d50 k63 k64) -> (forall {X43 : (Index ty)} ,
-        (wfindex k63 X43) -> (wfindex k64 X43))).
+  Lemma substhvl_tm_wfindex_ty {k66 : Hvl} :
+    (forall {d50 : (Trace tm)} {k67 : Hvl} {k68 : Hvl} ,
+      (substhvl_tm k66 d50 k67 k68) -> (forall {X43 : (Index ty)} ,
+        (wfindex k67 X43) -> (wfindex k68 X43))).
   Proof.
     needleGenericSubstHvlWfIndexHet .
   Qed.
-  Lemma substhvl_ty_wfindex_tm {k62 : Hvl} :
-    (forall {d50 : (Trace ty)} {k63 : Hvl} {k64 : Hvl} ,
-      (substhvl_ty k62 d50 k63 k64) -> (forall {x59 : (Index tm)} ,
-        (wfindex k63 x59) -> (wfindex k64 x59))).
+  Lemma substhvl_ty_wfindex_tm {k66 : Hvl} :
+    (forall {d50 : (Trace ty)} {k67 : Hvl} {k68 : Hvl} ,
+      (substhvl_ty k66 d50 k67 k68) -> (forall {x59 : (Index tm)} ,
+        (wfindex k67 x59) -> (wfindex k68 x59))).
   Proof.
     needleGenericSubstHvlWfIndexHet .
   Qed.
-  Definition substhvl_tm_wfTy {k62 : Hvl} : (forall (k63 : Hvl) ,
-    (forall (S43 : Ty) (wf0 : (wfTy k63 S43)) ,
-      (forall {d50 : (Trace tm)} {k64 : Hvl} ,
-        (substhvl_tm k62 d50 k63 k64) -> (wfTy k64 S43)))) := (ind_wfTy (fun (k63 : Hvl) (S43 : Ty) (wf0 : (wfTy k63 S43)) =>
-    (forall {d50 : (Trace tm)} {k64 : Hvl} ,
-      (substhvl_tm k62 d50 k63 k64) -> (wfTy k64 S43))) (fun (k63 : Hvl) {X43 : (Index ty)} (wfi : (wfindex k63 X43)) {d50 : (Trace tm)} {k64 : Hvl} (del : (substhvl_tm k62 d50 k63 k64)) =>
-    (wfTy_tvar k64 (substhvl_tm_wfindex_ty del wfi))) (fun (k63 : Hvl) (T1 : Ty) (wf0 : (wfTy k63 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy k63 T2)) IHT6 {d50 : (Trace tm)} {k64 : Hvl} (del : (substhvl_tm k62 d50 k63 k64)) =>
-    (wfTy_tarr k64 (IHT5 (weakenTrace d50 H0) k64 (weaken_substhvl_tm H0 del)) (IHT6 (weakenTrace d50 H0) k64 (weaken_substhvl_tm H0 del)))) (fun (k63 : Hvl) (T : Ty) (wf0 : (wfTy (HS ty k63) T)) IHT5 {d50 : (Trace tm)} {k64 : Hvl} (del : (substhvl_tm k62 d50 k63 k64)) =>
-    (wfTy_tall k64 (IHT5 (weakenTrace d50 (HS ty H0)) (HS ty k64) (weaken_substhvl_tm (HS ty H0) del)))) (fun (k63 : Hvl) (T1 : Ty) (wf0 : (wfTy k63 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy k63 T2)) IHT6 {d50 : (Trace tm)} {k64 : Hvl} (del : (substhvl_tm k62 d50 k63 k64)) =>
-    (wfTy_tprod k64 (IHT5 (weakenTrace d50 H0) k64 (weaken_substhvl_tm H0 del)) (IHT6 (weakenTrace d50 H0) k64 (weaken_substhvl_tm H0 del))))).
-  Definition substhvl_ty_wfTy {k62 : Hvl} {S43 : Ty} (wf : (wfTy k62 S43)) : (forall (k63 : Hvl) ,
-    (forall (S44 : Ty) (wf0 : (wfTy k63 S44)) ,
-      (forall {d50 : (Trace ty)} {k64 : Hvl} ,
-        (substhvl_ty k62 d50 k63 k64) -> (wfTy k64 (tsubstTy d50 S43 S44))))) := (ind_wfTy (fun (k63 : Hvl) (S44 : Ty) (wf0 : (wfTy k63 S44)) =>
-    (forall {d50 : (Trace ty)} {k64 : Hvl} ,
-      (substhvl_ty k62 d50 k63 k64) -> (wfTy k64 (tsubstTy d50 S43 S44)))) (fun (k63 : Hvl) {X43 : (Index ty)} (wfi : (wfindex k63 X43)) {d50 : (Trace ty)} {k64 : Hvl} (del : (substhvl_ty k62 d50 k63 k64)) =>
-    (substhvl_ty_wfindex_ty wf del wfi)) (fun (k63 : Hvl) (T1 : Ty) (wf0 : (wfTy k63 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy k63 T2)) IHT6 {d50 : (Trace ty)} {k64 : Hvl} (del : (substhvl_ty k62 d50 k63 k64)) =>
-    (wfTy_tarr k64 (IHT5 (weakenTrace d50 H0) k64 (weaken_substhvl_ty H0 del)) (IHT6 (weakenTrace d50 H0) k64 (weaken_substhvl_ty H0 del)))) (fun (k63 : Hvl) (T : Ty) (wf0 : (wfTy (HS ty k63) T)) IHT5 {d50 : (Trace ty)} {k64 : Hvl} (del : (substhvl_ty k62 d50 k63 k64)) =>
-    (wfTy_tall k64 (IHT5 (weakenTrace d50 (HS ty H0)) (HS ty k64) (weaken_substhvl_ty (HS ty H0) del)))) (fun (k63 : Hvl) (T1 : Ty) (wf0 : (wfTy k63 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy k63 T2)) IHT6 {d50 : (Trace ty)} {k64 : Hvl} (del : (substhvl_ty k62 d50 k63 k64)) =>
-    (wfTy_tprod k64 (IHT5 (weakenTrace d50 H0) k64 (weaken_substhvl_ty H0 del)) (IHT6 (weakenTrace d50 H0) k64 (weaken_substhvl_ty H0 del))))).
-  Definition substhvl_tm_wfPat {k62 : Hvl} : (forall (k63 : Hvl) ,
-    (forall (p34 : Pat) (wf0 : (wfPat k63 p34)) ,
-      (forall {d50 : (Trace tm)} {k64 : Hvl} ,
-        (substhvl_tm k62 d50 k63 k64) -> (wfPat k64 p34)))) := (fun (k63 : Hvl) =>
-    (ind_wfPat k63 (fun (p34 : Pat) (wf0 : (wfPat k63 p34)) =>
-      (forall {d50 : (Trace tm)} {k64 : Hvl} ,
-        (substhvl_tm k62 d50 k63 k64) -> (wfPat k64 p34))) (fun (T : Ty) (wf0 : (wfTy k63 T)) {d50 : (Trace tm)} {k64 : Hvl} (del : (substhvl_tm k62 d50 k63 k64)) =>
-      (wfPat_pvar k64 (substhvl_tm_wfTy k63 T wf0 (weaken_substhvl_tm H0 del)))) (fun (p1 : Pat) (wf0 : (wfPat k63 p1)) IHp0 (p2 : Pat) (wf1 : (wfPat k63 p2)) IHp3 {d50 : (Trace tm)} {k64 : Hvl} (del : (substhvl_tm k62 d50 k63 k64)) =>
-      (wfPat_pprod k64 (IHp0 (weakenTrace d50 H0) k64 (weaken_substhvl_tm H0 del)) (IHp3 (weakenTrace d50 H0) k64 (weaken_substhvl_tm H0 del)))))).
-  Definition substhvl_ty_wfPat {k62 : Hvl} {S43 : Ty} (wf : (wfTy k62 S43)) : (forall (k63 : Hvl) ,
-    (forall (p34 : Pat) (wf0 : (wfPat k63 p34)) ,
-      (forall {d50 : (Trace ty)} {k64 : Hvl} ,
-        (substhvl_ty k62 d50 k63 k64) -> (wfPat k64 (tsubstPat d50 S43 p34))))) := (fun (k63 : Hvl) =>
-    (ind_wfPat k63 (fun (p34 : Pat) (wf0 : (wfPat k63 p34)) =>
-      (forall {d50 : (Trace ty)} {k64 : Hvl} ,
-        (substhvl_ty k62 d50 k63 k64) -> (wfPat k64 (tsubstPat d50 S43 p34)))) (fun (T : Ty) (wf0 : (wfTy k63 T)) {d50 : (Trace ty)} {k64 : Hvl} (del : (substhvl_ty k62 d50 k63 k64)) =>
-      (wfPat_pvar k64 (substhvl_ty_wfTy wf k63 T wf0 (weaken_substhvl_ty H0 del)))) (fun (p1 : Pat) (wf0 : (wfPat k63 p1)) IHp0 (p2 : Pat) (wf1 : (wfPat k63 p2)) IHp3 {d50 : (Trace ty)} {k64 : Hvl} (del : (substhvl_ty k62 d50 k63 k64)) =>
-      (wfPat_pprod k64 (IHp0 (weakenTrace d50 H0) k64 (weaken_substhvl_ty H0 del)) (IHp3 (weakenTrace d50 H0) k64 (weaken_substhvl_ty H0 del)))))).
-  Definition substhvl_tm_wfTm {k62 : Hvl} {s18 : Tm} (wf : (wfTm k62 s18)) : (forall (k63 : Hvl) ,
-    (forall (s19 : Tm) (wf0 : (wfTm k63 s19)) ,
-      (forall {d50 : (Trace tm)} {k64 : Hvl} ,
-        (substhvl_tm k62 d50 k63 k64) -> (wfTm k64 (substTm d50 s18 s19))))) := (ind_wfTm (fun (k63 : Hvl) (s19 : Tm) (wf0 : (wfTm k63 s19)) =>
-    (forall {d50 : (Trace tm)} {k64 : Hvl} ,
-      (substhvl_tm k62 d50 k63 k64) -> (wfTm k64 (substTm d50 s18 s19)))) (fun (k63 : Hvl) {x59 : (Index tm)} (wfi : (wfindex k63 x59)) {d50 : (Trace tm)} {k64 : Hvl} (del : (substhvl_tm k62 d50 k63 k64)) =>
-    (substhvl_tm_wfindex_tm wf del wfi)) (fun (k63 : Hvl) (T : Ty) (wf0 : (wfTy k63 T)) (t : Tm) (wf1 : (wfTm (HS tm k63) t)) IHt170 {d50 : (Trace tm)} {k64 : Hvl} (del : (substhvl_tm k62 d50 k63 k64)) =>
-    (wfTm_abs k64 (substhvl_tm_wfTy k63 T wf0 (weaken_substhvl_tm H0 del)) (IHt170 (weakenTrace d50 (HS tm H0)) (HS tm k64) (weaken_substhvl_tm (HS tm H0) del)))) (fun (k63 : Hvl) (t1 : Tm) (wf0 : (wfTm k63 t1)) IHt170 (t2 : Tm) (wf1 : (wfTm k63 t2)) IHt171 {d50 : (Trace tm)} {k64 : Hvl} (del : (substhvl_tm k62 d50 k63 k64)) =>
-    (wfTm_app k64 (IHt170 (weakenTrace d50 H0) k64 (weaken_substhvl_tm H0 del)) (IHt171 (weakenTrace d50 H0) k64 (weaken_substhvl_tm H0 del)))) (fun (k63 : Hvl) (t : Tm) (wf0 : (wfTm (HS ty k63) t)) IHt170 {d50 : (Trace tm)} {k64 : Hvl} (del : (substhvl_tm k62 d50 k63 k64)) =>
-    (wfTm_tabs k64 (IHt170 (weakenTrace d50 (HS ty H0)) (HS ty k64) (weaken_substhvl_tm (HS ty H0) del)))) (fun (k63 : Hvl) (t : Tm) (wf0 : (wfTm k63 t)) IHt170 (T : Ty) (wf1 : (wfTy k63 T)) {d50 : (Trace tm)} {k64 : Hvl} (del : (substhvl_tm k62 d50 k63 k64)) =>
-    (wfTm_tapp k64 (IHt170 (weakenTrace d50 H0) k64 (weaken_substhvl_tm H0 del)) (substhvl_tm_wfTy k63 T wf1 (weaken_substhvl_tm H0 del)))) (fun (k63 : Hvl) (t1 : Tm) (wf0 : (wfTm k63 t1)) IHt170 (t2 : Tm) (wf1 : (wfTm k63 t2)) IHt171 {d50 : (Trace tm)} {k64 : Hvl} (del : (substhvl_tm k62 d50 k63 k64)) =>
-    (wfTm_prod k64 (IHt170 (weakenTrace d50 H0) k64 (weaken_substhvl_tm H0 del)) (IHt171 (weakenTrace d50 H0) k64 (weaken_substhvl_tm H0 del)))) (fun (k63 : Hvl) (p : Pat) (wf0 : (wfPat k63 p)) (t1 : Tm) (wf1 : (wfTm k63 t1)) IHt170 (t2 : Tm) (wf2 : (wfTm (appendHvl k63 (bindPat p)) t2)) IHt171 {d50 : (Trace tm)} {k64 : Hvl} (del : (substhvl_tm k62 d50 k63 k64)) =>
-    (wfTm_lett k64 (substhvl_tm_wfPat k63 p wf0 (weaken_substhvl_tm H0 del)) (IHt170 (weakenTrace d50 H0) k64 (weaken_substhvl_tm H0 del)) (IHt171 (weakenTrace d50 (bindPat p)) (appendHvl k64 (bindPat p)) (weaken_substhvl_tm (bindPat p) del))))).
-  Definition substhvl_ty_wfTm {k62 : Hvl} {S43 : Ty} (wf : (wfTy k62 S43)) : (forall (k63 : Hvl) ,
-    (forall (s18 : Tm) (wf0 : (wfTm k63 s18)) ,
-      (forall {d50 : (Trace ty)} {k64 : Hvl} ,
-        (substhvl_ty k62 d50 k63 k64) -> (wfTm k64 (tsubstTm d50 S43 s18))))) := (ind_wfTm (fun (k63 : Hvl) (s18 : Tm) (wf0 : (wfTm k63 s18)) =>
-    (forall {d50 : (Trace ty)} {k64 : Hvl} ,
-      (substhvl_ty k62 d50 k63 k64) -> (wfTm k64 (tsubstTm d50 S43 s18)))) (fun (k63 : Hvl) {x59 : (Index tm)} (wfi : (wfindex k63 x59)) {d50 : (Trace ty)} {k64 : Hvl} (del : (substhvl_ty k62 d50 k63 k64)) =>
-    (wfTm_var k64 (substhvl_ty_wfindex_tm del wfi))) (fun (k63 : Hvl) (T : Ty) (wf0 : (wfTy k63 T)) (t : Tm) (wf1 : (wfTm (HS tm k63) t)) IHt170 {d50 : (Trace ty)} {k64 : Hvl} (del : (substhvl_ty k62 d50 k63 k64)) =>
-    (wfTm_abs k64 (substhvl_ty_wfTy wf k63 T wf0 (weaken_substhvl_ty H0 del)) (IHt170 (weakenTrace d50 (HS tm H0)) (HS tm k64) (weaken_substhvl_ty (HS tm H0) del)))) (fun (k63 : Hvl) (t1 : Tm) (wf0 : (wfTm k63 t1)) IHt170 (t2 : Tm) (wf1 : (wfTm k63 t2)) IHt171 {d50 : (Trace ty)} {k64 : Hvl} (del : (substhvl_ty k62 d50 k63 k64)) =>
-    (wfTm_app k64 (IHt170 (weakenTrace d50 H0) k64 (weaken_substhvl_ty H0 del)) (IHt171 (weakenTrace d50 H0) k64 (weaken_substhvl_ty H0 del)))) (fun (k63 : Hvl) (t : Tm) (wf0 : (wfTm (HS ty k63) t)) IHt170 {d50 : (Trace ty)} {k64 : Hvl} (del : (substhvl_ty k62 d50 k63 k64)) =>
-    (wfTm_tabs k64 (IHt170 (weakenTrace d50 (HS ty H0)) (HS ty k64) (weaken_substhvl_ty (HS ty H0) del)))) (fun (k63 : Hvl) (t : Tm) (wf0 : (wfTm k63 t)) IHt170 (T : Ty) (wf1 : (wfTy k63 T)) {d50 : (Trace ty)} {k64 : Hvl} (del : (substhvl_ty k62 d50 k63 k64)) =>
-    (wfTm_tapp k64 (IHt170 (weakenTrace d50 H0) k64 (weaken_substhvl_ty H0 del)) (substhvl_ty_wfTy wf k63 T wf1 (weaken_substhvl_ty H0 del)))) (fun (k63 : Hvl) (t1 : Tm) (wf0 : (wfTm k63 t1)) IHt170 (t2 : Tm) (wf1 : (wfTm k63 t2)) IHt171 {d50 : (Trace ty)} {k64 : Hvl} (del : (substhvl_ty k62 d50 k63 k64)) =>
-    (wfTm_prod k64 (IHt170 (weakenTrace d50 H0) k64 (weaken_substhvl_ty H0 del)) (IHt171 (weakenTrace d50 H0) k64 (weaken_substhvl_ty H0 del)))) (fun (k63 : Hvl) (p : Pat) (wf0 : (wfPat k63 p)) (t1 : Tm) (wf1 : (wfTm k63 t1)) IHt170 (t2 : Tm) (wf2 : (wfTm (appendHvl k63 (bindPat p)) t2)) IHt171 {d50 : (Trace ty)} {k64 : Hvl} (del : (substhvl_ty k62 d50 k63 k64)) =>
-    (wfTm_lett k64 (substhvl_ty_wfPat wf k63 p wf0 (weaken_substhvl_ty H0 del)) (IHt170 (weakenTrace d50 H0) k64 (weaken_substhvl_ty H0 del)) (eq_ind2 wfTm (f_equal2 appendHvl (eq_refl k64) (f_equal2 appendHvl (eq_sym (stability_tsubst_bindPat _ _ _)) (eq_refl H0))) eq_refl (IHt171 (weakenTrace d50 (bindPat p)) (appendHvl k64 (bindPat p)) (weaken_substhvl_ty (bindPat p) del)))))).
+  Definition substhvl_tm_wfTy {k66 : Hvl} : (forall (k67 : Hvl) ,
+    (forall (S44 : Ty) (wf0 : (wfTy k67 S44)) ,
+      (forall {d50 : (Trace tm)} {k68 : Hvl} ,
+        (substhvl_tm k66 d50 k67 k68) -> (wfTy k68 S44)))) := (ind_wfTy (fun (k67 : Hvl) (S44 : Ty) (wf0 : (wfTy k67 S44)) =>
+    (forall {d50 : (Trace tm)} {k68 : Hvl} ,
+      (substhvl_tm k66 d50 k67 k68) -> (wfTy k68 S44))) (fun (k67 : Hvl) {X43 : (Index ty)} (wfi : (wfindex k67 X43)) {d50 : (Trace tm)} {k68 : Hvl} (del : (substhvl_tm k66 d50 k67 k68)) =>
+    (wfTy_tvar k68 (substhvl_tm_wfindex_ty del wfi))) (fun (k67 : Hvl) (T1 : Ty) (wf0 : (wfTy k67 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy k67 T2)) IHT6 {d50 : (Trace tm)} {k68 : Hvl} (del : (substhvl_tm k66 d50 k67 k68)) =>
+    (wfTy_tarr k68 (IHT5 (weakenTrace d50 H0) k68 (weaken_substhvl_tm H0 del)) (IHT6 (weakenTrace d50 H0) k68 (weaken_substhvl_tm H0 del)))) (fun (k67 : Hvl) (T : Ty) (wf0 : (wfTy (HS ty k67) T)) IHT5 {d50 : (Trace tm)} {k68 : Hvl} (del : (substhvl_tm k66 d50 k67 k68)) =>
+    (wfTy_tall k68 (IHT5 (weakenTrace d50 (HS ty H0)) (HS ty k68) (weaken_substhvl_tm (HS ty H0) del)))) (fun (k67 : Hvl) (T1 : Ty) (wf0 : (wfTy k67 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy k67 T2)) IHT6 {d50 : (Trace tm)} {k68 : Hvl} (del : (substhvl_tm k66 d50 k67 k68)) =>
+    (wfTy_tprod k68 (IHT5 (weakenTrace d50 H0) k68 (weaken_substhvl_tm H0 del)) (IHT6 (weakenTrace d50 H0) k68 (weaken_substhvl_tm H0 del))))).
+  Definition substhvl_ty_wfTy {k66 : Hvl} {S44 : Ty} (wf : (wfTy k66 S44)) : (forall (k67 : Hvl) ,
+    (forall (S45 : Ty) (wf0 : (wfTy k67 S45)) ,
+      (forall {d50 : (Trace ty)} {k68 : Hvl} ,
+        (substhvl_ty k66 d50 k67 k68) -> (wfTy k68 (tsubstTy d50 S44 S45))))) := (ind_wfTy (fun (k67 : Hvl) (S45 : Ty) (wf0 : (wfTy k67 S45)) =>
+    (forall {d50 : (Trace ty)} {k68 : Hvl} ,
+      (substhvl_ty k66 d50 k67 k68) -> (wfTy k68 (tsubstTy d50 S44 S45)))) (fun (k67 : Hvl) {X43 : (Index ty)} (wfi : (wfindex k67 X43)) {d50 : (Trace ty)} {k68 : Hvl} (del : (substhvl_ty k66 d50 k67 k68)) =>
+    (substhvl_ty_wfindex_ty wf del wfi)) (fun (k67 : Hvl) (T1 : Ty) (wf0 : (wfTy k67 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy k67 T2)) IHT6 {d50 : (Trace ty)} {k68 : Hvl} (del : (substhvl_ty k66 d50 k67 k68)) =>
+    (wfTy_tarr k68 (IHT5 (weakenTrace d50 H0) k68 (weaken_substhvl_ty H0 del)) (IHT6 (weakenTrace d50 H0) k68 (weaken_substhvl_ty H0 del)))) (fun (k67 : Hvl) (T : Ty) (wf0 : (wfTy (HS ty k67) T)) IHT5 {d50 : (Trace ty)} {k68 : Hvl} (del : (substhvl_ty k66 d50 k67 k68)) =>
+    (wfTy_tall k68 (IHT5 (weakenTrace d50 (HS ty H0)) (HS ty k68) (weaken_substhvl_ty (HS ty H0) del)))) (fun (k67 : Hvl) (T1 : Ty) (wf0 : (wfTy k67 T1)) IHT5 (T2 : Ty) (wf1 : (wfTy k67 T2)) IHT6 {d50 : (Trace ty)} {k68 : Hvl} (del : (substhvl_ty k66 d50 k67 k68)) =>
+    (wfTy_tprod k68 (IHT5 (weakenTrace d50 H0) k68 (weaken_substhvl_ty H0 del)) (IHT6 (weakenTrace d50 H0) k68 (weaken_substhvl_ty H0 del))))).
+  Definition substhvl_tm_wfPat {k66 : Hvl} : (forall (k67 : Hvl) ,
+    (forall (p35 : Pat) (wf0 : (wfPat k67 p35)) ,
+      (forall {d50 : (Trace tm)} {k68 : Hvl} ,
+        (substhvl_tm k66 d50 k67 k68) -> (wfPat k68 p35)))) := (fun (k67 : Hvl) =>
+    (ind_wfPat k67 (fun (p35 : Pat) (wf0 : (wfPat k67 p35)) =>
+      (forall {d50 : (Trace tm)} {k68 : Hvl} ,
+        (substhvl_tm k66 d50 k67 k68) -> (wfPat k68 p35))) (fun (T : Ty) (wf0 : (wfTy k67 T)) {d50 : (Trace tm)} {k68 : Hvl} (del : (substhvl_tm k66 d50 k67 k68)) =>
+      (wfPat_pvar k68 (substhvl_tm_wfTy k67 T wf0 (weaken_substhvl_tm H0 del)))) (fun (p1 : Pat) (wf0 : (wfPat k67 p1)) IHp0 (p2 : Pat) (wf1 : (wfPat k67 p2)) IHp3 {d50 : (Trace tm)} {k68 : Hvl} (del : (substhvl_tm k66 d50 k67 k68)) =>
+      (wfPat_pprod k68 (IHp0 (weakenTrace d50 H0) k68 (weaken_substhvl_tm H0 del)) (IHp3 (weakenTrace d50 H0) k68 (weaken_substhvl_tm H0 del)))))).
+  Definition substhvl_ty_wfPat {k66 : Hvl} {S44 : Ty} (wf : (wfTy k66 S44)) : (forall (k67 : Hvl) ,
+    (forall (p35 : Pat) (wf0 : (wfPat k67 p35)) ,
+      (forall {d50 : (Trace ty)} {k68 : Hvl} ,
+        (substhvl_ty k66 d50 k67 k68) -> (wfPat k68 (tsubstPat d50 S44 p35))))) := (fun (k67 : Hvl) =>
+    (ind_wfPat k67 (fun (p35 : Pat) (wf0 : (wfPat k67 p35)) =>
+      (forall {d50 : (Trace ty)} {k68 : Hvl} ,
+        (substhvl_ty k66 d50 k67 k68) -> (wfPat k68 (tsubstPat d50 S44 p35)))) (fun (T : Ty) (wf0 : (wfTy k67 T)) {d50 : (Trace ty)} {k68 : Hvl} (del : (substhvl_ty k66 d50 k67 k68)) =>
+      (wfPat_pvar k68 (substhvl_ty_wfTy wf k67 T wf0 (weaken_substhvl_ty H0 del)))) (fun (p1 : Pat) (wf0 : (wfPat k67 p1)) IHp0 (p2 : Pat) (wf1 : (wfPat k67 p2)) IHp3 {d50 : (Trace ty)} {k68 : Hvl} (del : (substhvl_ty k66 d50 k67 k68)) =>
+      (wfPat_pprod k68 (IHp0 (weakenTrace d50 H0) k68 (weaken_substhvl_ty H0 del)) (IHp3 (weakenTrace d50 H0) k68 (weaken_substhvl_ty H0 del)))))).
+  Definition substhvl_tm_wfTm {k66 : Hvl} {s18 : Tm} (wf : (wfTm k66 s18)) : (forall (k67 : Hvl) ,
+    (forall (s19 : Tm) (wf0 : (wfTm k67 s19)) ,
+      (forall {d50 : (Trace tm)} {k68 : Hvl} ,
+        (substhvl_tm k66 d50 k67 k68) -> (wfTm k68 (substTm d50 s18 s19))))) := (ind_wfTm (fun (k67 : Hvl) (s19 : Tm) (wf0 : (wfTm k67 s19)) =>
+    (forall {d50 : (Trace tm)} {k68 : Hvl} ,
+      (substhvl_tm k66 d50 k67 k68) -> (wfTm k68 (substTm d50 s18 s19)))) (fun (k67 : Hvl) {x59 : (Index tm)} (wfi : (wfindex k67 x59)) {d50 : (Trace tm)} {k68 : Hvl} (del : (substhvl_tm k66 d50 k67 k68)) =>
+    (substhvl_tm_wfindex_tm wf del wfi)) (fun (k67 : Hvl) (T : Ty) (wf0 : (wfTy k67 T)) (t : Tm) (wf1 : (wfTm (HS tm k67) t)) IHt170 {d50 : (Trace tm)} {k68 : Hvl} (del : (substhvl_tm k66 d50 k67 k68)) =>
+    (wfTm_abs k68 (substhvl_tm_wfTy k67 T wf0 (weaken_substhvl_tm H0 del)) (IHt170 (weakenTrace d50 (HS tm H0)) (HS tm k68) (weaken_substhvl_tm (HS tm H0) del)))) (fun (k67 : Hvl) (t1 : Tm) (wf0 : (wfTm k67 t1)) IHt170 (t2 : Tm) (wf1 : (wfTm k67 t2)) IHt171 {d50 : (Trace tm)} {k68 : Hvl} (del : (substhvl_tm k66 d50 k67 k68)) =>
+    (wfTm_app k68 (IHt170 (weakenTrace d50 H0) k68 (weaken_substhvl_tm H0 del)) (IHt171 (weakenTrace d50 H0) k68 (weaken_substhvl_tm H0 del)))) (fun (k67 : Hvl) (t : Tm) (wf0 : (wfTm (HS ty k67) t)) IHt170 {d50 : (Trace tm)} {k68 : Hvl} (del : (substhvl_tm k66 d50 k67 k68)) =>
+    (wfTm_tabs k68 (IHt170 (weakenTrace d50 (HS ty H0)) (HS ty k68) (weaken_substhvl_tm (HS ty H0) del)))) (fun (k67 : Hvl) (t : Tm) (wf0 : (wfTm k67 t)) IHt170 (T : Ty) (wf1 : (wfTy k67 T)) {d50 : (Trace tm)} {k68 : Hvl} (del : (substhvl_tm k66 d50 k67 k68)) =>
+    (wfTm_tapp k68 (IHt170 (weakenTrace d50 H0) k68 (weaken_substhvl_tm H0 del)) (substhvl_tm_wfTy k67 T wf1 (weaken_substhvl_tm H0 del)))) (fun (k67 : Hvl) (t1 : Tm) (wf0 : (wfTm k67 t1)) IHt170 (t2 : Tm) (wf1 : (wfTm k67 t2)) IHt171 {d50 : (Trace tm)} {k68 : Hvl} (del : (substhvl_tm k66 d50 k67 k68)) =>
+    (wfTm_prod k68 (IHt170 (weakenTrace d50 H0) k68 (weaken_substhvl_tm H0 del)) (IHt171 (weakenTrace d50 H0) k68 (weaken_substhvl_tm H0 del)))) (fun (k67 : Hvl) (p : Pat) (wf0 : (wfPat k67 p)) (t1 : Tm) (wf1 : (wfTm k67 t1)) IHt170 (t2 : Tm) (wf2 : (wfTm (appendHvl k67 (bindPat p)) t2)) IHt171 {d50 : (Trace tm)} {k68 : Hvl} (del : (substhvl_tm k66 d50 k67 k68)) =>
+    (wfTm_lett k68 (substhvl_tm_wfPat k67 p wf0 (weaken_substhvl_tm H0 del)) (IHt170 (weakenTrace d50 H0) k68 (weaken_substhvl_tm H0 del)) (IHt171 (weakenTrace d50 (bindPat p)) (appendHvl k68 (bindPat p)) (weaken_substhvl_tm (bindPat p) del))))).
+  Definition substhvl_ty_wfTm {k66 : Hvl} {S44 : Ty} (wf : (wfTy k66 S44)) : (forall (k67 : Hvl) ,
+    (forall (s18 : Tm) (wf0 : (wfTm k67 s18)) ,
+      (forall {d50 : (Trace ty)} {k68 : Hvl} ,
+        (substhvl_ty k66 d50 k67 k68) -> (wfTm k68 (tsubstTm d50 S44 s18))))) := (ind_wfTm (fun (k67 : Hvl) (s18 : Tm) (wf0 : (wfTm k67 s18)) =>
+    (forall {d50 : (Trace ty)} {k68 : Hvl} ,
+      (substhvl_ty k66 d50 k67 k68) -> (wfTm k68 (tsubstTm d50 S44 s18)))) (fun (k67 : Hvl) {x59 : (Index tm)} (wfi : (wfindex k67 x59)) {d50 : (Trace ty)} {k68 : Hvl} (del : (substhvl_ty k66 d50 k67 k68)) =>
+    (wfTm_var k68 (substhvl_ty_wfindex_tm del wfi))) (fun (k67 : Hvl) (T : Ty) (wf0 : (wfTy k67 T)) (t : Tm) (wf1 : (wfTm (HS tm k67) t)) IHt170 {d50 : (Trace ty)} {k68 : Hvl} (del : (substhvl_ty k66 d50 k67 k68)) =>
+    (wfTm_abs k68 (substhvl_ty_wfTy wf k67 T wf0 (weaken_substhvl_ty H0 del)) (IHt170 (weakenTrace d50 (HS tm H0)) (HS tm k68) (weaken_substhvl_ty (HS tm H0) del)))) (fun (k67 : Hvl) (t1 : Tm) (wf0 : (wfTm k67 t1)) IHt170 (t2 : Tm) (wf1 : (wfTm k67 t2)) IHt171 {d50 : (Trace ty)} {k68 : Hvl} (del : (substhvl_ty k66 d50 k67 k68)) =>
+    (wfTm_app k68 (IHt170 (weakenTrace d50 H0) k68 (weaken_substhvl_ty H0 del)) (IHt171 (weakenTrace d50 H0) k68 (weaken_substhvl_ty H0 del)))) (fun (k67 : Hvl) (t : Tm) (wf0 : (wfTm (HS ty k67) t)) IHt170 {d50 : (Trace ty)} {k68 : Hvl} (del : (substhvl_ty k66 d50 k67 k68)) =>
+    (wfTm_tabs k68 (IHt170 (weakenTrace d50 (HS ty H0)) (HS ty k68) (weaken_substhvl_ty (HS ty H0) del)))) (fun (k67 : Hvl) (t : Tm) (wf0 : (wfTm k67 t)) IHt170 (T : Ty) (wf1 : (wfTy k67 T)) {d50 : (Trace ty)} {k68 : Hvl} (del : (substhvl_ty k66 d50 k67 k68)) =>
+    (wfTm_tapp k68 (IHt170 (weakenTrace d50 H0) k68 (weaken_substhvl_ty H0 del)) (substhvl_ty_wfTy wf k67 T wf1 (weaken_substhvl_ty H0 del)))) (fun (k67 : Hvl) (t1 : Tm) (wf0 : (wfTm k67 t1)) IHt170 (t2 : Tm) (wf1 : (wfTm k67 t2)) IHt171 {d50 : (Trace ty)} {k68 : Hvl} (del : (substhvl_ty k66 d50 k67 k68)) =>
+    (wfTm_prod k68 (IHt170 (weakenTrace d50 H0) k68 (weaken_substhvl_ty H0 del)) (IHt171 (weakenTrace d50 H0) k68 (weaken_substhvl_ty H0 del)))) (fun (k67 : Hvl) (p : Pat) (wf0 : (wfPat k67 p)) (t1 : Tm) (wf1 : (wfTm k67 t1)) IHt170 (t2 : Tm) (wf2 : (wfTm (appendHvl k67 (bindPat p)) t2)) IHt171 {d50 : (Trace ty)} {k68 : Hvl} (del : (substhvl_ty k66 d50 k67 k68)) =>
+    (wfTm_lett k68 (substhvl_ty_wfPat wf k67 p wf0 (weaken_substhvl_ty H0 del)) (IHt170 (weakenTrace d50 H0) k68 (weaken_substhvl_ty H0 del)) (eq_ind2 wfTm (f_equal2 appendHvl (eq_refl k68) (f_equal2 appendHvl (eq_sym (stability_tsubst_bindPat _ _ _)) (eq_refl H0))) eq_refl (IHt171 (weakenTrace d50 (bindPat p)) (appendHvl k68 (bindPat p)) (weaken_substhvl_ty (bindPat p) del)))))).
 End SubstWellFormed.
  Hint Resolve substhvl_tm_wfindex_tm substhvl_tm_wfindex_ty substhvl_ty_wfindex_tm substhvl_ty_wfindex_ty : infra.
  Hint Resolve substhvl_tm_wfindex_tm substhvl_tm_wfindex_ty substhvl_ty_wfindex_tm substhvl_ty_wfindex_ty : subst.
@@ -1376,6 +1375,40 @@ End SubstWellFormed.
  Hint Constructors substhvl_tm substhvl_ty : subst.
  Hint Constructors substhvl_tm substhvl_ty : subst_wf.
  Hint Constructors substhvl_tm substhvl_ty : wf.
+Fixpoint subhvl_tm (k66 : Hvl) {struct k66} : Prop :=
+  match k66 with
+    | (H0) => True
+    | (HS a k66) => match a with
+      | (tm) => (subhvl_tm k66)
+      | _ => False
+    end
+  end.
+Lemma subhvl_tm_append  :
+  (forall (k66 : Hvl) (k67 : Hvl) ,
+    (subhvl_tm k66) -> (subhvl_tm k67) -> (subhvl_tm (appendHvl k66 k67))).
+Proof.
+  needleGenericSubHvlAppend .
+Qed.
+ Hint Resolve subhvl_tm_append : infra.
+ Hint Resolve subhvl_tm_append : wf.
+Lemma wfPat_strengthen_subhvl_tm  :
+  (forall (k63 : Hvl) (k62 : Hvl) (p34 : Pat) ,
+    (subhvl_tm k63) -> (wfPat (appendHvl k62 k63) (weakenPat p34 k63)) -> (wfPat k62 p34)).
+Proof.
+  needleGenericWellformedStrengthen .
+Qed.
+Lemma wfTy_strengthen_subhvl_tm  :
+  (forall (k65 : Hvl) (k64 : Hvl) (S43 : Ty) ,
+    (subhvl_tm k65) -> (wfTy (appendHvl k64 k65) (weakenTy S43 k65)) -> (wfTy k64 S43)).
+Proof.
+  needleGenericWellformedStrengthen .
+Qed.
+ Hint Extern 2 ((wfPat _ _)) => match goal with
+  | H : (wfPat (appendHvl _ _) (weakenPat _ _)) |- _ => apply (wfPat_strengthen_subhvl_tm) in H
+end : infra wf.
+ Hint Extern 2 ((wfTy _ _)) => match goal with
+  | H0 : (wfTy (appendHvl _ _) (weakenTy _ _)) |- _ => apply (wfTy_strengthen_subhvl_tm) in H0
+end : infra wf.
 Section Context.
   Inductive Env : Type :=
     | empty 
@@ -1383,15 +1416,15 @@ Section Context.
     | etvar (G : Env).
   Fixpoint appendEnv (G : Env) (G0 : Env) : Env :=
     match G0 with
-      | empty => G
-      | evar G1 T => (evar (appendEnv G G1) T)
-      | etvar G1 => (etvar (appendEnv G G1))
+      | (empty) => G
+      | (evar G1 T) => (evar (appendEnv G G1) T)
+      | (etvar G1) => (etvar (appendEnv G G1))
     end.
   Fixpoint domainEnv (G : Env) : Hvl :=
     match G with
-      | empty => H0
-      | evar G0 T => (HS tm (domainEnv G0))
-      | etvar G0 => (HS ty (domainEnv G0))
+      | (empty) => H0
+      | (evar G0 T) => (HS tm (domainEnv G0))
+      | (etvar G0) => (HS ty (domainEnv G0))
     end.
   Lemma appendEnv_assoc  :
     (forall (G : Env) (G0 : Env) (G1 : Env) ,
@@ -1409,27 +1442,27 @@ Section Context.
   Qed.
   Fixpoint shiftEnv (c13 : (Cutoff tm)) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (shiftEnv c13 G0) T)
-      | etvar G0 => (etvar (shiftEnv c13 G0))
+      | (empty) => empty
+      | (evar G0 T) => (evar (shiftEnv c13 G0) T)
+      | (etvar G0) => (etvar (shiftEnv c13 G0))
     end.
   Fixpoint tshiftEnv (c13 : (Cutoff ty)) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (tshiftEnv c13 G0) (tshiftTy (weakenCutoffty c13 (domainEnv G0)) T))
-      | etvar G0 => (etvar (tshiftEnv c13 G0))
+      | (empty) => empty
+      | (evar G0 T) => (evar (tshiftEnv c13 G0) (tshiftTy (weakenCutoffty c13 (domainEnv G0)) T))
+      | (etvar G0) => (etvar (tshiftEnv c13 G0))
     end.
   Fixpoint substEnv (d50 : (Trace tm)) (s18 : Tm) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (substEnv d50 s18 G0) T)
-      | etvar G0 => (etvar (substEnv d50 s18 G0))
+      | (empty) => empty
+      | (evar G0 T) => (evar (substEnv d50 s18 G0) T)
+      | (etvar G0) => (etvar (substEnv d50 s18 G0))
     end.
-  Fixpoint tsubstEnv (d50 : (Trace ty)) (S43 : Ty) (G : Env) : Env :=
+  Fixpoint tsubstEnv (d50 : (Trace ty)) (S44 : Ty) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (tsubstEnv d50 S43 G0) (tsubstTy (weakenTrace d50 (domainEnv G0)) S43 T))
-      | etvar G0 => (etvar (tsubstEnv d50 S43 G0))
+      | (empty) => empty
+      | (evar G0 T) => (evar (tsubstEnv d50 S44 G0) (tsubstTy (weakenTrace d50 (domainEnv G0)) S44 T))
+      | (etvar G0) => (etvar (tsubstEnv d50 S44 G0))
     end.
   Lemma domainEnv_shiftEnv  :
     (forall (c13 : (Cutoff tm)) (G : Env) ,
@@ -1453,8 +1486,8 @@ Section Context.
     needleGenericDomainEnvSubstEnv .
   Qed.
   Lemma domainEnv_tsubstEnv  :
-    (forall (d50 : (Trace ty)) (S43 : Ty) (G : Env) ,
-      ((domainEnv (tsubstEnv d50 S43 G)) =
+    (forall (d50 : (Trace ty)) (S44 : Ty) (G : Env) ,
+      ((domainEnv (tsubstEnv d50 S44 G)) =
       (domainEnv G))).
   Proof.
     needleGenericDomainEnvSubstEnv .
@@ -1488,9 +1521,9 @@ Section ContextStuff.
       needleGenericSubstEnvAppendEnv .
     Qed.
     Lemma tsubstEnv_appendEnv  :
-      (forall (d50 : (Trace ty)) (S43 : Ty) (G : Env) (G0 : Env) ,
-        ((tsubstEnv d50 S43 (appendEnv G G0)) =
-        (appendEnv (tsubstEnv d50 S43 G) (tsubstEnv (weakenTrace d50 (domainEnv G)) S43 G0)))).
+      (forall (d50 : (Trace ty)) (S44 : Ty) (G : Env) (G0 : Env) ,
+        ((tsubstEnv d50 S44 (appendEnv G G0)) =
+        (appendEnv (tsubstEnv d50 S44 G) (tsubstEnv (weakenTrace d50 (domainEnv G)) S44 G0)))).
     Proof.
       needleGenericSubstEnvAppendEnv .
     Qed.
@@ -1519,24 +1552,24 @@ Section ContextStuff.
           {G : Env} {X43 : (Index ty)} :
           (lookup_etvar G X43) -> (lookup_etvar (etvar G) (IS X43)).
     Lemma lookup_evar_inversion_here  :
-      (forall (G : Env) (S43 : Ty) (S44 : Ty) ,
-        (lookup_evar (evar G S43) I0 S44) -> (S43 =
-        S44)).
+      (forall (G : Env) (S44 : Ty) (S45 : Ty) ,
+        (lookup_evar (evar G S44) I0 S45) -> (S44 =
+        S45)).
     Proof.
       needleGenericLookupInversion .
     Qed.
     Lemma lookup_evar_functional  :
       (forall {G : Env} {x59 : (Index tm)} ,
-        (forall {S43 : Ty} ,
-          (lookup_evar G x59 S43) -> (forall {S44 : Ty} ,
-            (lookup_evar G x59 S44) -> (S43 =
-            S44)))).
+        (forall {S44 : Ty} ,
+          (lookup_evar G x59 S44) -> (forall {S45 : Ty} ,
+            (lookup_evar G x59 S45) -> (S44 =
+            S45)))).
     Proof.
       needleGenericLookupFunctional .
     Qed.
     Lemma lookup_evar_wf  :
-      (forall {G : Env} {x59 : (Index tm)} {S43 : Ty} ,
-        (lookup_evar G x59 S43) -> (wfTy (domainEnv G) S43)).
+      (forall {G : Env} {x59 : (Index tm)} {S44 : Ty} ,
+        (lookup_evar G x59 S44) -> (wfTy (domainEnv G) S44)).
     Proof.
       needleGenericLookupWellformedData .
     Qed.
@@ -1553,8 +1586,8 @@ Section ContextStuff.
       needleGenericWeakenLookup .
     Qed.
     Lemma lookup_evar_wfindex  :
-      (forall {G : Env} {x59 : (Index tm)} {S43 : Ty} ,
-        (lookup_evar G x59 S43) -> (wfindex (domainEnv G) x59)).
+      (forall {G : Env} {x59 : (Index tm)} {S44 : Ty} ,
+        (lookup_evar G x59 S44) -> (wfindex (domainEnv G) x59)).
     Proof.
       needleGenericLookupWellformedIndex .
     Qed.
@@ -1629,20 +1662,20 @@ Section ContextStuff.
   Proof.
     needleGenericWeakenSubstEnv .
   Qed.
-  Inductive subst_etvar (G : Env) (S43 : Ty) : (Trace ty) -> Env -> Env -> Prop :=
+  Inductive subst_etvar (G : Env) (S44 : Ty) : (Trace ty) -> Env -> Env -> Prop :=
     | subst_etvar_here :
-        (subst_etvar G S43 X0 (etvar G) G)
+        (subst_etvar G S44 X0 (etvar G) G)
     | subst_etvar_there_evar
         {d50 : (Trace ty)} {G0 : Env}
         {G1 : Env} {T : Ty} :
-        (subst_etvar G S43 d50 G0 G1) -> (subst_etvar G S43 (XS tm d50) (evar G0 T) (evar G1 (tsubstTy d50 S43 T)))
+        (subst_etvar G S44 d50 G0 G1) -> (subst_etvar G S44 (XS tm d50) (evar G0 T) (evar G1 (tsubstTy d50 S44 T)))
     | subst_etvar_there_etvar
         {d50 : (Trace ty)} {G0 : Env}
         {G1 : Env} :
-        (subst_etvar G S43 d50 G0 G1) -> (subst_etvar G S43 (XS ty d50) (etvar G0) (etvar G1)).
-  Lemma weaken_subst_etvar {G : Env} {S43 : Ty} :
+        (subst_etvar G S44 d50 G0 G1) -> (subst_etvar G S44 (XS ty d50) (etvar G0) (etvar G1)).
+  Lemma weaken_subst_etvar {G : Env} {S44 : Ty} :
     (forall (G0 : Env) {d50 : (Trace ty)} {G1 : Env} {G2 : Env} ,
-      (subst_etvar G S43 d50 G1 G2) -> (subst_etvar G S43 (weakenTrace d50 (domainEnv G0)) (appendEnv G1 G0) (appendEnv G2 (tsubstEnv d50 S43 G0)))).
+      (subst_etvar G S44 d50 G1 G2) -> (subst_etvar G S44 (weakenTrace d50 (domainEnv G0)) (appendEnv G1 G0) (appendEnv G2 (tsubstEnv d50 S44 G0)))).
   Proof.
     needleGenericWeakenSubstEnv .
   Qed.
@@ -1652,9 +1685,9 @@ Section ContextStuff.
   Proof.
     needleGenericSubstEnvSubstHvl .
   Qed.
-  Lemma subst_etvar_substhvl_ty {G : Env} {S43 : Ty} :
+  Lemma subst_etvar_substhvl_ty {G : Env} {S44 : Ty} :
     (forall {d50 : (Trace ty)} {G0 : Env} {G1 : Env} ,
-      (subst_etvar G S43 d50 G0 G1) -> (substhvl_ty (domainEnv G) d50 (domainEnv G0) (domainEnv G1))).
+      (subst_etvar G S44 d50 G0 G1) -> (substhvl_ty (domainEnv G) d50 (domainEnv G0) (domainEnv G1))).
   Proof.
     needleGenericSubstEnvSubstHvl .
   Qed.
@@ -1689,6 +1722,28 @@ Proof.
 Qed.
  Hint Constructors wfPat wfTm wfTy : infra.
  Hint Constructors wfPat wfTm wfTy : wf.
+ Hint Extern 10 ((wfPat _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 10 ((wfTm _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 10 ((wfTy _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 2 ((wfTy _ _)) => match goal with
+  | H : (wfTy _ (tvar _)) |- _ => inversion H; subst; clear H
+  | H : (wfTy _ (tarr _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTy _ (tall _)) |- _ => inversion H; subst; clear H
+  | H : (wfTy _ (tprod _ _)) |- _ => inversion H; subst; clear H
+end : infra wf.
+ Hint Extern 2 ((wfPat _ _)) => match goal with
+  | H : (wfPat _ (pvar _)) |- _ => inversion H; subst; clear H
+  | H : (wfPat _ (pprod _ _)) |- _ => inversion H; subst; clear H
+end : infra wf.
+ Hint Extern 2 ((wfTm _ _)) => match goal with
+  | H : (wfTm _ (var _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (abs _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (app _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (tabs _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (tapp _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (prod _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (lett _ _ _)) |- _ => inversion H; subst; clear H
+end : infra wf.
  Hint Resolve lookup_evar_wf : infra.
  Hint Resolve lookup_evar_wf : wf.
  Hint Resolve lookup_evar_wfindex lookup_etvar_wfindex : infra.
@@ -1745,9 +1800,9 @@ Lemma subst_evar_lookup_etvar {G : Env} {T80 : Ty} {s18 : Tm} :
 Proof.
   needleGenericSubstEnvLookup .
 Qed.
-Lemma subst_etvar_lookup_evar {G : Env} {S43 : Ty} (wf : (wfTy (domainEnv G) S43)) :
-  (forall {d50 : (Trace ty)} {G0 : Env} {G1 : Env} (sub : (subst_etvar G S43 d50 G0 G1)) {x59 : (Index tm)} {T80 : Ty} ,
-    (lookup_evar G0 x59 T80) -> (lookup_evar G1 x59 (tsubstTy d50 S43 T80))).
+Lemma subst_etvar_lookup_evar {G : Env} {S44 : Ty} (wf : (wfTy (domainEnv G) S44)) :
+  (forall {d50 : (Trace ty)} {G0 : Env} {G1 : Env} (sub : (subst_etvar G S44 d50 G0 G1)) {x59 : (Index tm)} {T80 : Ty} ,
+    (lookup_evar G0 x59 T80) -> (lookup_evar G1 x59 (tsubstTy d50 S44 T80))).
 Proof.
   needleGenericSubstEnvLookup .
 Qed.
@@ -1756,25 +1811,25 @@ Qed.
  Hint Resolve subst_evar_lookup_etvar subst_etvar_lookup_evar : subst.
 Fixpoint size_Ty (S0 : Ty) {struct S0} : nat :=
   match S0 with
-    | tvar X => 1
-    | tarr T1 T2 => (plus 1 (plus (size_Ty T1) (size_Ty T2)))
-    | tall T => (plus 1 (size_Ty T))
-    | tprod T0 T3 => (plus 1 (plus (size_Ty T0) (size_Ty T3)))
+    | (tvar X) => 1
+    | (tarr T1 T2) => (plus 1 (plus (size_Ty T1) (size_Ty T2)))
+    | (tall T) => (plus 1 (size_Ty T))
+    | (tprod T0 T3) => (plus 1 (plus (size_Ty T0) (size_Ty T3)))
   end.
 Fixpoint size_Pat (p : Pat) {struct p} : nat :=
   match p with
-    | pvar T => (plus 1 (size_Ty T))
-    | pprod p1 p2 => (plus 1 (plus (size_Pat p1) (size_Pat p2)))
+    | (pvar T) => (plus 1 (size_Ty T))
+    | (pprod p1 p2) => (plus 1 (plus (size_Pat p1) (size_Pat p2)))
   end.
 Fixpoint size_Tm (s : Tm) {struct s} : nat :=
   match s with
-    | var x => 1
-    | abs T t => (plus 1 (plus (size_Ty T) (size_Tm t)))
-    | app t1 t2 => (plus 1 (plus (size_Tm t1) (size_Tm t2)))
-    | tabs t0 => (plus 1 (size_Tm t0))
-    | tapp t3 T0 => (plus 1 (plus (size_Tm t3) (size_Ty T0)))
-    | prod t4 t5 => (plus 1 (plus (size_Tm t4) (size_Tm t5)))
-    | lett p t6 t7 => (plus 1 (plus (size_Pat p) (plus (size_Tm t6) (size_Tm t7))))
+    | (var x) => 1
+    | (abs T t) => (plus 1 (plus (size_Ty T) (size_Tm t)))
+    | (app t1 t2) => (plus 1 (plus (size_Tm t1) (size_Tm t2)))
+    | (tabs t0) => (plus 1 (size_Tm t0))
+    | (tapp t3 T0) => (plus 1 (plus (size_Tm t3) (size_Ty T0)))
+    | (prod t4 t5) => (plus 1 (plus (size_Tm t4) (size_Tm t5)))
+    | (lett p t6 t7) => (plus 1 (plus (size_Pat p) (plus (size_Tm t6) (size_Tm t7))))
   end.
 Lemma tshift_size_Ty  :
   (forall (S43 : Ty) (c10 : (Cutoff ty)) ,

@@ -1,6 +1,5 @@
-Require Export Coq.Program.Equality.
-Require Export Coq.Program.Tactics.
-Require Export Coq.Unicode.Utf8.
+Require Import Coq.Program.Equality.
+Require Import Coq.Program.Tactics.
 Require Export Needle.
 Section Namespace.
   Inductive Namespace : Type :=
@@ -22,8 +21,8 @@ Section HVarlist.
   
   Fixpoint appendHvl (k : Hvl) (k0 : Hvl) {struct k0} : Hvl :=
     match k0 with
-      | H0 => k
-      | HS a k0 => (HS a (appendHvl k k0))
+      | (H0) => k
+      | (HS a k0) => (HS a (appendHvl k k0))
     end.
   
   Lemma appendHvl_assoc  :
@@ -53,17 +52,17 @@ Section Index.
   
   Fixpoint weakenIndextm (x : (Index tm)) (k : Hvl) {struct k} : (Index tm) :=
     match k with
-      | H0 => x
-      | HS a k => match a with
-        | tm => (IS (weakenIndextm x k))
+      | (H0) => x
+      | (HS a k) => match a with
+        | (tm) => (IS (weakenIndextm x k))
         | _ => (weakenIndextm x k)
       end
     end.
   Fixpoint weakenIndexty (X : (Index ty)) (k : Hvl) {struct k} : (Index ty) :=
     match k with
-      | H0 => X
-      | HS a k => match a with
-        | ty => (IS (weakenIndexty X k))
+      | (H0) => X
+      | (HS a k) => match a with
+        | (ty) => (IS (weakenIndexty X k))
         | _ => (weakenIndexty X k)
       end
     end.
@@ -119,17 +118,17 @@ Section Shift.
   Global Arguments CS {a} _ .
   Fixpoint weakenCutofftm (c : (Cutoff tm)) (k : Hvl) {struct k} : (Cutoff tm) :=
     match k with
-      | H0 => c
-      | HS a k => match a with
-        | tm => (CS (weakenCutofftm c k))
+      | (H0) => c
+      | (HS a k) => match a with
+        | (tm) => (CS (weakenCutofftm c k))
         | _ => (weakenCutofftm c k)
       end
     end.
   Fixpoint weakenCutoffty (c : (Cutoff ty)) (k : Hvl) {struct k} : (Cutoff ty) :=
     match k with
-      | H0 => c
-      | HS a k => match a with
-        | ty => (CS (weakenCutoffty c k))
+      | (H0) => c
+      | (HS a k) => match a with
+        | (ty) => (CS (weakenCutoffty c k))
         | _ => (weakenCutoffty c k)
       end
     end.
@@ -150,64 +149,64 @@ Section Shift.
   Qed.
   Fixpoint shiftIndex (c : (Cutoff tm)) (x : (Index tm)) {struct c} : (Index tm) :=
     match c with
-      | C0 => (IS x)
-      | CS c => match x with
-        | I0 => I0
-        | IS x => (IS (shiftIndex c x))
+      | (C0) => (IS x)
+      | (CS c) => match x with
+        | (I0) => I0
+        | (IS x) => (IS (shiftIndex c x))
       end
     end.
   Fixpoint tshiftIndex (c : (Cutoff ty)) (X : (Index ty)) {struct c} : (Index ty) :=
     match c with
-      | C0 => (IS X)
-      | CS c => match X with
-        | I0 => I0
-        | IS X => (IS (tshiftIndex c X))
+      | (C0) => (IS X)
+      | (CS c) => match X with
+        | (I0) => I0
+        | (IS X) => (IS (tshiftIndex c X))
       end
     end.
   Fixpoint tshiftTy (c : (Cutoff ty)) (S0 : Ty) {struct S0} : Ty :=
     match S0 with
-      | tvar X => (tvar (tshiftIndex c X))
-      | tabs K T => (tabs K (tshiftTy (weakenCutoffty c (appendHvl (HS ty H0) H0)) T))
-      | tapp T1 T2 => (tapp (tshiftTy (weakenCutoffty c H0) T1) (tshiftTy (weakenCutoffty c H0) T2))
-      | tarr T0 T3 => (tarr (tshiftTy (weakenCutoffty c H0) T0) (tshiftTy (weakenCutoffty c H0) T3))
-      | tall K0 T4 => (tall K0 (tshiftTy (weakenCutoffty c (appendHvl (HS ty H0) H0)) T4))
+      | (tvar X) => (tvar (tshiftIndex c X))
+      | (tabs K T) => (tabs K (tshiftTy (weakenCutoffty c (appendHvl (HS ty H0) H0)) T))
+      | (tapp T1 T2) => (tapp (tshiftTy (weakenCutoffty c H0) T1) (tshiftTy (weakenCutoffty c H0) T2))
+      | (tarr T0 T3) => (tarr (tshiftTy (weakenCutoffty c H0) T0) (tshiftTy (weakenCutoffty c H0) T3))
+      | (tall K0 T4) => (tall K0 (tshiftTy (weakenCutoffty c (appendHvl (HS ty H0) H0)) T4))
     end.
   Fixpoint shiftTm (c : (Cutoff tm)) (s : Tm) {struct s} : Tm :=
     match s with
-      | var x => (var (shiftIndex c x))
-      | abs T t => (abs T (shiftTm (weakenCutofftm c (appendHvl (HS tm H0) H0)) t))
-      | app t1 t2 => (app (shiftTm (weakenCutofftm c H0) t1) (shiftTm (weakenCutofftm c H0) t2))
-      | tyabs K t0 => (tyabs K (shiftTm (weakenCutofftm c (appendHvl (HS ty H0) H0)) t0))
-      | tyapp t3 T0 => (tyapp (shiftTm (weakenCutofftm c H0) t3) T0)
+      | (var x) => (var (shiftIndex c x))
+      | (abs T t) => (abs T (shiftTm (weakenCutofftm c (appendHvl (HS tm H0) H0)) t))
+      | (app t1 t2) => (app (shiftTm (weakenCutofftm c H0) t1) (shiftTm (weakenCutofftm c H0) t2))
+      | (tyabs K t0) => (tyabs K (shiftTm (weakenCutofftm c (appendHvl (HS ty H0) H0)) t0))
+      | (tyapp t3 T0) => (tyapp (shiftTm (weakenCutofftm c H0) t3) T0)
     end.
   Fixpoint tshiftTm (c : (Cutoff ty)) (s : Tm) {struct s} : Tm :=
     match s with
-      | var x => (var x)
-      | abs T t => (abs (tshiftTy (weakenCutoffty c H0) T) (tshiftTm (weakenCutoffty c (appendHvl (HS tm H0) H0)) t))
-      | app t1 t2 => (app (tshiftTm (weakenCutoffty c H0) t1) (tshiftTm (weakenCutoffty c H0) t2))
-      | tyabs K t0 => (tyabs K (tshiftTm (weakenCutoffty c (appendHvl (HS ty H0) H0)) t0))
-      | tyapp t3 T0 => (tyapp (tshiftTm (weakenCutoffty c H0) t3) (tshiftTy (weakenCutoffty c H0) T0))
+      | (var x) => (var x)
+      | (abs T t) => (abs (tshiftTy (weakenCutoffty c H0) T) (tshiftTm (weakenCutoffty c (appendHvl (HS tm H0) H0)) t))
+      | (app t1 t2) => (app (tshiftTm (weakenCutoffty c H0) t1) (tshiftTm (weakenCutoffty c H0) t2))
+      | (tyabs K t0) => (tyabs K (tshiftTm (weakenCutoffty c (appendHvl (HS ty H0) H0)) t0))
+      | (tyapp t3 T0) => (tyapp (tshiftTm (weakenCutoffty c H0) t3) (tshiftTy (weakenCutoffty c H0) T0))
     end.
 End Shift.
 
 Section Weaken.
   Fixpoint weakenKind (K : Kind) (k : Hvl) {struct k} : Kind :=
     match k with
-      | H0 => K
-      | HS tm k => (weakenKind K k)
-      | HS ty k => (weakenKind K k)
+      | (H0) => K
+      | (HS tm k) => (weakenKind K k)
+      | (HS ty k) => (weakenKind K k)
     end.
   Fixpoint weakenTy (S0 : Ty) (k : Hvl) {struct k} : Ty :=
     match k with
-      | H0 => S0
-      | HS tm k => (weakenTy S0 k)
-      | HS ty k => (tshiftTy C0 (weakenTy S0 k))
+      | (H0) => S0
+      | (HS tm k) => (weakenTy S0 k)
+      | (HS ty k) => (tshiftTy C0 (weakenTy S0 k))
     end.
   Fixpoint weakenTm (s : Tm) (k : Hvl) {struct k} : Tm :=
     match k with
-      | H0 => s
-      | HS tm k => (shiftTm C0 (weakenTm s k))
-      | HS ty k => (tshiftTm C0 (weakenTm s k))
+      | (H0) => s
+      | (HS tm k) => (shiftTm C0 (weakenTm s k))
+      | (HS ty k) => (tshiftTm C0 (weakenTm s k))
     end.
 End Weaken.
 
@@ -221,8 +220,8 @@ Section Subst.
   Global Arguments XS [a] b _ .
   Fixpoint weakenTrace {a : Namespace} (x : (Trace a)) (k : Hvl) {struct k} : (Trace a) :=
     match k with
-      | H0 => x
-      | HS b k => (XS b (weakenTrace x k))
+      | (H0) => x
+      | (HS b k) => (XS b (weakenTrace x k))
     end.
   Lemma weakenTrace_append (a : Namespace) :
     (forall (x : (Trace a)) (k : Hvl) (k0 : Hvl) ,
@@ -233,51 +232,51 @@ Section Subst.
   Qed.
   Fixpoint substIndex (d : (Trace tm)) (s : Tm) (x : (Index tm)) {struct d} : Tm :=
     match d with
-      | X0 => match x with
-        | I0 => s
-        | IS x => (var x)
+      | (X0) => match x with
+        | (I0) => s
+        | (IS x) => (var x)
       end
-      | XS tm d => match x with
-        | I0 => (var I0)
-        | IS x => (shiftTm C0 (substIndex d s x))
+      | (XS tm d) => match x with
+        | (I0) => (var I0)
+        | (IS x) => (shiftTm C0 (substIndex d s x))
       end
-      | XS ty d => (tshiftTm C0 (substIndex d s x))
+      | (XS ty d) => (tshiftTm C0 (substIndex d s x))
     end.
   Fixpoint tsubstIndex (d : (Trace ty)) (S0 : Ty) (X : (Index ty)) {struct d} : Ty :=
     match d with
-      | X0 => match X with
-        | I0 => S0
-        | IS X => (tvar X)
+      | (X0) => match X with
+        | (I0) => S0
+        | (IS X) => (tvar X)
       end
-      | XS tm d => (tsubstIndex d S0 X)
-      | XS ty d => match X with
-        | I0 => (tvar I0)
-        | IS X => (tshiftTy C0 (tsubstIndex d S0 X))
+      | (XS tm d) => (tsubstIndex d S0 X)
+      | (XS ty d) => match X with
+        | (I0) => (tvar I0)
+        | (IS X) => (tshiftTy C0 (tsubstIndex d S0 X))
       end
     end.
   Fixpoint tsubstTy (d : (Trace ty)) (S0 : Ty) (S1 : Ty) {struct S1} : Ty :=
     match S1 with
-      | tvar X => (tsubstIndex d S0 X)
-      | tabs K T => (tabs K (tsubstTy (XS ty d) S0 T))
-      | tapp T1 T2 => (tapp (tsubstTy d S0 T1) (tsubstTy d S0 T2))
-      | tarr T0 T3 => (tarr (tsubstTy d S0 T0) (tsubstTy d S0 T3))
-      | tall K0 T4 => (tall K0 (tsubstTy (XS ty d) S0 T4))
+      | (tvar X) => (tsubstIndex d S0 X)
+      | (tabs K T) => (tabs K (tsubstTy (XS ty d) S0 T))
+      | (tapp T1 T2) => (tapp (tsubstTy d S0 T1) (tsubstTy d S0 T2))
+      | (tarr T0 T3) => (tarr (tsubstTy d S0 T0) (tsubstTy d S0 T3))
+      | (tall K0 T4) => (tall K0 (tsubstTy (XS ty d) S0 T4))
     end.
   Fixpoint substTm (d : (Trace tm)) (s : Tm) (s0 : Tm) {struct s0} : Tm :=
     match s0 with
-      | var x => (substIndex d s x)
-      | abs T t => (abs T (substTm (XS tm d) s t))
-      | app t1 t2 => (app (substTm d s t1) (substTm d s t2))
-      | tyabs K t0 => (tyabs K (substTm (XS ty d) s t0))
-      | tyapp t3 T0 => (tyapp (substTm d s t3) T0)
+      | (var x) => (substIndex d s x)
+      | (abs T t) => (abs T (substTm (XS tm d) s t))
+      | (app t1 t2) => (app (substTm d s t1) (substTm d s t2))
+      | (tyabs K t0) => (tyabs K (substTm (XS ty d) s t0))
+      | (tyapp t3 T0) => (tyapp (substTm d s t3) T0)
     end.
   Fixpoint tsubstTm (d : (Trace ty)) (S0 : Ty) (s : Tm) {struct s} : Tm :=
     match s with
-      | var x => (var x)
-      | abs T t => (abs (tsubstTy d S0 T) (tsubstTm (XS tm d) S0 t))
-      | app t1 t2 => (app (tsubstTm d S0 t1) (tsubstTm d S0 t2))
-      | tyabs K t0 => (tyabs K (tsubstTm (XS ty d) S0 t0))
-      | tyapp t3 T0 => (tyapp (tsubstTm d S0 t3) (tsubstTy d S0 T0))
+      | (var x) => (var x)
+      | (abs T t) => (abs (tsubstTy d S0 T) (tsubstTm (XS tm d) S0 t))
+      | (app t1 t2) => (app (tsubstTm d S0 t1) (tsubstTm d S0 t2))
+      | (tyabs K t0) => (tyabs K (tsubstTm (XS ty d) S0 t0))
+      | (tyapp t3 T0) => (tyapp (tsubstTm d S0 t3) (tsubstTy d S0 T0))
     end.
 End Subst.
 
@@ -852,13 +851,13 @@ End SubstSubstInteraction.
 Section WellFormed.
   Fixpoint wfindex {a : Namespace} (k50 : Hvl) (i : (Index a)) {struct k50} : Prop :=
     match k50 with
-      | H0 => False
-      | HS b k50 => match (eq_namespace_dec a b) with
-        | left e => match i with
-          | I0 => True
-          | IS i => (wfindex k50 i)
+      | (H0) => False
+      | (HS b k50) => match (eq_namespace_dec a b) with
+        | (left e) => match i with
+          | (I0) => True
+          | (IS i) => (wfindex k50 i)
         end
-        | right n => (wfindex k50 i)
+        | (right n) => (wfindex k50 i)
       end
     end.
   Inductive wfKind (k50 : Hvl) : Kind -> Prop :=
@@ -1206,15 +1205,15 @@ Section Context.
     | etvar (G : Env) (K : Kind).
   Fixpoint appendEnv (G : Env) (G0 : Env) : Env :=
     match G0 with
-      | empty => G
-      | evar G1 T => (evar (appendEnv G G1) T)
-      | etvar G1 K => (etvar (appendEnv G G1) K)
+      | (empty) => G
+      | (evar G1 T) => (evar (appendEnv G G1) T)
+      | (etvar G1 K) => (etvar (appendEnv G G1) K)
     end.
   Fixpoint domainEnv (G : Env) : Hvl :=
     match G with
-      | empty => H0
-      | evar G0 T => (HS tm (domainEnv G0))
-      | etvar G0 K => (HS ty (domainEnv G0))
+      | (empty) => H0
+      | (evar G0 T) => (HS tm (domainEnv G0))
+      | (etvar G0 K) => (HS ty (domainEnv G0))
     end.
   Lemma appendEnv_assoc  :
     (forall (G : Env) (G0 : Env) (G1 : Env) ,
@@ -1232,27 +1231,27 @@ Section Context.
   Qed.
   Fixpoint shiftEnv (c12 : (Cutoff tm)) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (shiftEnv c12 G0) T)
-      | etvar G0 K => (etvar (shiftEnv c12 G0) K)
+      | (empty) => empty
+      | (evar G0 T) => (evar (shiftEnv c12 G0) T)
+      | (etvar G0 K) => (etvar (shiftEnv c12 G0) K)
     end.
   Fixpoint tshiftEnv (c12 : (Cutoff ty)) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (tshiftEnv c12 G0) (tshiftTy (weakenCutoffty c12 (domainEnv G0)) T))
-      | etvar G0 K => (etvar (tshiftEnv c12 G0) K)
+      | (empty) => empty
+      | (evar G0 T) => (evar (tshiftEnv c12 G0) (tshiftTy (weakenCutoffty c12 (domainEnv G0)) T))
+      | (etvar G0 K) => (etvar (tshiftEnv c12 G0) K)
     end.
   Fixpoint substEnv (d37 : (Trace tm)) (s14 : Tm) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (substEnv d37 s14 G0) T)
-      | etvar G0 K => (etvar (substEnv d37 s14 G0) K)
+      | (empty) => empty
+      | (evar G0 T) => (evar (substEnv d37 s14 G0) T)
+      | (etvar G0 K) => (etvar (substEnv d37 s14 G0) K)
     end.
   Fixpoint tsubstEnv (d37 : (Trace ty)) (S34 : Ty) (G : Env) : Env :=
     match G with
-      | empty => empty
-      | evar G0 T => (evar (tsubstEnv d37 S34 G0) (tsubstTy (weakenTrace d37 (domainEnv G0)) S34 T))
-      | etvar G0 K => (etvar (tsubstEnv d37 S34 G0) K)
+      | (empty) => empty
+      | (evar G0 T) => (evar (tsubstEnv d37 S34 G0) (tsubstTy (weakenTrace d37 (domainEnv G0)) S34 T))
+      | (etvar G0 K) => (etvar (tsubstEnv d37 S34 G0) K)
     end.
   Lemma domainEnv_shiftEnv  :
     (forall (c12 : (Cutoff tm)) (G : Env) ,
@@ -1537,6 +1536,27 @@ Proof.
 Qed.
  Hint Constructors wfKind wfTm wfTy : infra.
  Hint Constructors wfKind wfTm wfTy : wf.
+ Hint Extern 10 ((wfKind _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 10 ((wfTm _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 10 ((wfTy _ _)) => autorewrite with env_domain_append in *  : infra wf.
+ Hint Extern 2 ((wfKind _ _)) => match goal with
+  | H : (wfKind _ (star)) |- _ => inversion H; subst; clear H
+  | H : (wfKind _ (karr _ _)) |- _ => inversion H; subst; clear H
+end : infra wf.
+ Hint Extern 2 ((wfTy _ _)) => match goal with
+  | H : (wfTy _ (tvar _)) |- _ => inversion H; subst; clear H
+  | H : (wfTy _ (tabs _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTy _ (tapp _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTy _ (tarr _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTy _ (tall _ _)) |- _ => inversion H; subst; clear H
+end : infra wf.
+ Hint Extern 2 ((wfTm _ _)) => match goal with
+  | H : (wfTm _ (var _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (abs _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (app _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (tyabs _ _)) |- _ => inversion H; subst; clear H
+  | H : (wfTm _ (tyapp _ _)) |- _ => inversion H; subst; clear H
+end : infra wf.
  Hint Resolve lookup_evar_wf lookup_etvar_wf : infra.
  Hint Resolve lookup_evar_wf lookup_etvar_wf : wf.
  Hint Resolve lookup_evar_wfindex lookup_etvar_wfindex : infra.
@@ -1604,24 +1624,24 @@ Qed.
  Hint Resolve subst_evar_lookup_etvar subst_etvar_lookup_evar : subst.
 Fixpoint size_Kind (K : Kind) {struct K} : nat :=
   match K with
-    | star => 1
-    | karr K1 K2 => (plus 1 (plus (size_Kind K1) (size_Kind K2)))
+    | (star) => 1
+    | (karr K1 K2) => (plus 1 (plus (size_Kind K1) (size_Kind K2)))
   end.
 Fixpoint size_Ty (S0 : Ty) {struct S0} : nat :=
   match S0 with
-    | tvar X => 1
-    | tabs K T => (plus 1 (plus (size_Kind K) (size_Ty T)))
-    | tapp T1 T2 => (plus 1 (plus (size_Ty T1) (size_Ty T2)))
-    | tarr T0 T3 => (plus 1 (plus (size_Ty T0) (size_Ty T3)))
-    | tall K0 T4 => (plus 1 (plus (size_Kind K0) (size_Ty T4)))
+    | (tvar X) => 1
+    | (tabs K T) => (plus 1 (plus (size_Kind K) (size_Ty T)))
+    | (tapp T1 T2) => (plus 1 (plus (size_Ty T1) (size_Ty T2)))
+    | (tarr T0 T3) => (plus 1 (plus (size_Ty T0) (size_Ty T3)))
+    | (tall K0 T4) => (plus 1 (plus (size_Kind K0) (size_Ty T4)))
   end.
 Fixpoint size_Tm (s : Tm) {struct s} : nat :=
   match s with
-    | var x => 1
-    | abs T t => (plus 1 (plus (size_Ty T) (size_Tm t)))
-    | app t1 t2 => (plus 1 (plus (size_Tm t1) (size_Tm t2)))
-    | tyabs K t0 => (plus 1 (plus (size_Kind K) (size_Tm t0)))
-    | tyapp t3 T0 => (plus 1 (plus (size_Tm t3) (size_Ty T0)))
+    | (var x) => 1
+    | (abs T t) => (plus 1 (plus (size_Ty T) (size_Tm t)))
+    | (app t1 t2) => (plus 1 (plus (size_Tm t1) (size_Tm t2)))
+    | (tyabs K t0) => (plus 1 (plus (size_Kind K) (size_Tm t0)))
+    | (tyapp t3 T0) => (plus 1 (plus (size_Tm t3) (size_Ty T0)))
   end.
 Lemma tshift_size_Ty  :
   (forall (S34 : Ty) (c9 : (Cutoff ty)) ,

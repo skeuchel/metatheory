@@ -1,4 +1,6 @@
 Require Import Coq.omega.Omega.
+Require Import Coq.Program.Equality.
+Require Import Coq.Program.Tactics.
 Require Export DeclarationEvaluation.
 Require Export DeclarationTyping.
 Set Implicit Arguments.
@@ -458,9 +460,7 @@ Proof.
   - dependent destruction H.
     exists S2; repeat split; auto; constructor; auto.
   - destruct (IHTRedStar) as [T1 [Teq S2T2]]; subst.
-    dependent destruction H0.
-    exists T2; repeat split; auto.
-    apply (QRS_Cons S2T2 H0).
+    inversion H0; exists T2; repeat split; eauto using QRS_Cons.
 Qed.
 
 Lemma can_form_tarr' {t S T1 T2} (v: Value t) (wt: Typing empty t S) :
