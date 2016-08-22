@@ -1,3 +1,12 @@
-*.vo
+*.aux
 *.glob
 *.v.d
+*.v.d
+*.vio
+*.vo
+*~
+\#*#
+
+.DS_Store
+Makefile.coq
+sloc.txt
